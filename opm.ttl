@@ -1,0 +1,147 @@
+# Copyright 2017 W3C Linked Building Data Community Group.
+# 
+# This work is licensed under a Creative Commons Attribution License. 
+# This copyright applies to the OPM Vocabulary Specification and
+# accompanying documentation in RDF. Regarding underlying technology,
+# OPM uses W3C's RDF technology, an open Web standard that can be freely 
+# used by anyone.
+
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms:<http://purl.org/dc/terms/> .
+@prefix vann:   <http://purl.org/vocab/vann/> .
+@prefix voaf:   <http://purl.org/vocommons/voaf#> .
+@prefix vs:     <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix dce:    <http://purl.org/dc/elements/1.1/> .
+@prefix dbo:    <http://dbpedia.org/ontology/> .
+@prefix seas:   <http://w3id.org/seas/> .
+
+@prefix opm <https://w3id.org/opm#> .
+@base <https://w3id.org/product#> .
+
+voaf:Vocabulary a owl:Class .
+dcterms:title a owl:AnnotationProperty .
+dcterms:description a owl:AnnotationProperty .
+dcterms:issued a owl:AnnotationProperty .
+dcterms:modified a owl:AnnotationProperty .
+dcterms:creator a owl:AnnotationProperty .
+dcterms:contributor a owl:AnnotationProperty .
+dcterms:license a owl:AnnotationProperty .
+vann:preferredNamespacePrefix a owl:AnnotationProperty .
+vann:preferredNamespaceUri a owl:AnnotationProperty .
+vs:term_status a owl:AnnotationProperty .
+foaf:Person a owl:Class .
+foaf:name a owl:DatatypeProperty .
+
+#################################
+# METADATA
+#################################
+<https://w3id.org/opm#> rdf:type voaf:Vocabulary , 
+                                 owl:Ontology ;
+    dce:modified "July 13th 2017"^^xsd:string ;
+    owl:versionInfo "July 13th 2017"^^xsd:string ;
+    dcterms:issued "2017-07-13"^^xsd:date ;
+    #owl:versionIRI <https://w3id.org/opm/opm-0.1.0> ;
+    owl:versionInfo "v0.1.0" ;
+    #owl:priorVersion <https://w3id.org/opm/opm-0.1.0> ;
+    dcterms:title "OPM: Ontology for Property Management"@en ;
+    dcterms:description """The Ontology for Property Management (OPM) extends the concepts introduced in the Smart Energy Aware Systems (SEAS) Evaluations ontology."""@en ;
+    dcterms:creator [a foaf:Person ; foaf:name "Mads Holten Rasmussen" ] ;
+    dcterms:creator [a foaf:Person ; foaf:name "Pieter Pauwels" ] ;
+    dcterms:contributor [a foaf:Person ; foaf:name "Maxime Lefrançois" ] ;
+    dcterms:license <https://creativecommons.org/licenses/by/1.0/> ;
+    vann:preferredNamespacePrefix "opm" ;
+    vann:preferredNamespaceUri <https://w3id.org/opm#> ;
+    dce:Language "en" ;
+    dce:title "OPM" ;
+    dce:description "Ontology for Property Management" ;
+
+#################################
+# CLASSES
+#################################
+opm:Property
+        a owl:ObjectProperty ;
+        rdfs:label      "Property"@en ,
+                        "Egenskab"@da ;
+        rdfs:subClassOf seas:Property .
+
+opm:State
+        a owl:ObjectProperty ;
+        rdfs:label      "State"@en ,
+                        "Tilstand"@da ;
+        rdfs:comment    """A state is an evaluation holding the value + metadata about a property that was true for the given time.
+Metadata must as a minimum be the time of generation stated by prov:generatedAtTime, but preferably also a prov:wasAttributedTo reference to the agent who created the state.
+Calculated properties are also stored as states as these change when an expression argument changes. Calculations must have an opm:expression and a prov:wasDerivedFrom assigned to them. prov:wasDerivedFrom is stored as a rdf:Seq pointing to the property states that were used for the calculation."""@en ,
+                        """En tilstand er en evaluering, der indeholder værdien + metadata omkring en egenskab, som var sande for et givent tidspunkt.
+Metadata skal som minimum bestå af oprettelsestidspunktet givet ved prov:generatedAtTime, men helst også af en prov:wasAttributedTo reference til den agent som oprettede tilstanden.
+Beregnede egenskaber lagres også som tilstande da disse ændres når en beregningsparameter ændres. Beregninger skal have en opm:expression og en prov:wasDerivedFrom tilknyttet. prov:wasDerivedFrom lagres som en rdf:Seq, som peger på egenskabstilstandene som blev brugt til beregningen."""@da ; 
+        rdfs:subClassOf seas:Evaluation .
+
+#################################
+# OBJECT PROPERTIES
+#################################
+
+opm:hasState
+        a owl:ObjectProperty ;
+        rdfs:subPropertyOf      seas:evaluation ;
+        rdfs:label              "has state"@en ,
+                                "har tilstand"@da ;
+        rdfs:comment            "Relationship between a property and one of its states."@en ,
+                                "Relation mellem en egenskab og en af dennes tilstande."@da ;
+        rdfs:domain             opm:Property ;
+        rdfs:range              opm:State .
+
+opm:documentation
+        a owl:ObjectProperty ;
+        rdfs:label      "documentation"@en ,
+                        "dokumentation"@da ;
+        rdfs:comment    "Relationship between a confirmed state and a file holding some documentation. This could be either a mail, a scanned document or a digital signature."@en ,
+                        "Relation mellem en bekræftet tilstand og en fil, som indeholder dokumentation. Dette kunne være enten en mail, en skannet dokument eller en digital signatur."@da ;
+        rdfs:domain     opm:State .
+
+#################################
+# DATATYPE PROPERTIES
+#################################
+opm:deleted
+        a owl:DatatypeProperty ;
+        rdfs:label      "deleted"@en ,
+                        "slettet"@da ;
+        rdfs:comment    "The deleted property is true if a property is deleted. The property enables a user to delete a property without removing it from the dataset."@en ,
+                        "Slettet-egenskaben er sand hvis egenskaben er slettet. Egenskaben gør det muligt for en bruger at slette en egenskab uden den slettes fra datasættet"@da ;
+        rdfs:domain opm:Property ;
+        rdfs:range xsd:Boolean .
+
+opm:assumption
+        a owl:DatatypeProperty ;
+        rdfs:label      "assumption"@en ,
+                        "antagelse"@da ;
+        rdfs:comment    "The assumption property is true if a property is an assumption ie. not confirmed. The property enables the designers to move on knowing that the assumed property might change as the project progresses."@en ,
+                        "Antagelses-egenskaben er sand hvis en egenskab er en antagelse ie. ikke bekræftet. Egenskaben gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da ;
+        rdfs:domain opm:Property ;
+        rdfs:range xsd:Boolean .
+
+opm:confirmed
+        a owl:DatatypeProperty ;
+        rdfs:label      "confirmed"@en ,
+                        "bekræftet"@da .
+        rdfs:domain opm:Property ;
+        rdfs:range xsd:Boolean .
+
+opm:valueAtState
+        a owl:DatatypeProperty ;
+        rdfs:label      "value at state"@en ,
+                        "værdi ved tilstand"@da .
+        rdfs:comment    "Points to a literal with the value of the property at the given state."@en ,
+                        "Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
+        rdfs:domain opm:State .
+
+opm:expression
+        a owl:DatatypeProperty ;
+        rdfs:label      "expression"@en ,
+                        "udtryk"@da .
+        rdfs:comment    "Points to a literal with the expression. Arguments of the expression are given as ?arg1, ?arg2, ..., ?argn in the order specified in prov:wasDerivedFrom."@en ,
+                        "Peger på en tekststreng med et matematisk udtryk. Argumenter i udtrykket er givet ved ?arg1, ?arg2, ..., ?argn i den rækkefølge de er specificeret i prov:wasDerivedFrom."@da ;
+        rdfs:domain opm:State .

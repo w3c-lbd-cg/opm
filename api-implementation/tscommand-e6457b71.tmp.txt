@@ -1,0 +1,1 @@
+src\config\app.ts src\config\database.ts src\interfaces\user.ts src\models\user.ts src\routes\index.ts src\routes\route.ts src\routes\user.ts src\server.ts src\.baseDir.ts --removeComments --target ES6 --module commonjs --outDir ./dist

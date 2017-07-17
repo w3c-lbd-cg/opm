@@ -1,0 +1,90 @@
+#!/usr/bin/env node
+"use strict";
+
+//module dependencies
+var server = require("../dist/server");
+var debug = require("debug")("express:server");
+//var http = require("http");
+var https = require("https");
+var fs = require("fs");
+
+var p = require("../dist/config/app").AppConfig.port; //Get port from config
+var pp = require("../dist/config/app").AppConfig.httpsPassphrase; //Get passphrase from config
+
+//create http server
+var httpPort = normalizePort(p);
+var app = server.Server.bootstrap().app;
+app.set("port", httpPort);
+
+var httpsServer = https.createServer({
+      key: fs.readFileSync('key.pem'),
+      cert: fs.readFileSync('cert.pem'),
+      passphrase: pp
+    },app);
+
+//listen on provided ports
+httpsServer.listen(httpPort);
+
+//add error handler
+httpsServer.on("error", onError);
+
+//start listening on port
+httpsServer.on("error", onError);
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  var bind = typeof httpPort === "string"
+    ? "Pipe " + httpPort
+    : "Port " + httpPort;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  var addr = httpsServer.address();
+  var bind = typeof addr === "string"
+    ? "pipe " + addr
+    : "port " + addr.port;
+  debug("Listening on " + bind);
+}
