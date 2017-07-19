@@ -3,7 +3,8 @@ import * as rp from "request-promise";
 var errors = require('request-promise/errors');
 import * as _ from "underscore";
 import * as _s from "underscore.string";
-import { OPMProp, OPMCalc, IProp, ICalc } from "opm-query-generator";
+//import { OPMProp, OPMCalc, IProp, ICalc } from "opm-query-generator";
+import { OPMProp, OPMCalc, IProp, ICalc } from "opm-qg";
 import { StardogConn } from "./../helpers/stardog-connection";
 
 //Models
@@ -54,7 +55,7 @@ export class PropertyModel extends BaseModel {
                     const q = sp.deleteProp();
                     console.log("Querying database for delete prop construct:\n"+q);
                     let dbConn = new StardogConn(db);
-                    dbConn.constructQuery({query: q});
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
                     return rp(dbConn.options)
                         .then(x => {
                             if(!x){
@@ -133,7 +134,7 @@ export class PropertyModel extends BaseModel {
                         const q = sp.restoreProp();
                         console.log("Querying database to restore property:\n"+q);
                         let dbConn = new StardogConn(db);
-                        dbConn.constructQuery({query: q});
+                        dbConn.getQuery({query: q, accept: 'application/n-triples'});
                         return rp(dbConn.options)
                                 .then(x => {
                                     if(!x){
@@ -152,7 +153,7 @@ export class PropertyModel extends BaseModel {
                         const q = sp.confirmProp();
                         console.log("Querying database to confirm property:\n"+q);
                         let dbConn = new StardogConn(db);
-                        dbConn.constructQuery({query: q});
+                        dbConn.getQuery({query: q, accept: 'application/n-triples'});
                         return rp(dbConn.options)
                                 .then(x => {
                                     if(!x){
@@ -171,7 +172,7 @@ export class PropertyModel extends BaseModel {
                         const q = sp.makeAssumption();
                         console.log("Querying database to make property assumption:\n"+q);
                         let dbConn = new StardogConn(db);
-                        dbConn.constructQuery({query: q});
+                        dbConn.getQuery({query: q, accept: 'application/n-triples'});
                         return rp(dbConn.options)
                                 .then(x => {
                                     if(!x){
@@ -239,14 +240,20 @@ export class PropertyModel extends BaseModel {
         var propertyURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
         propertyURI = _s.strLeftBack(propertyURI, '/subscribers');
 
+        //Query parameters
+        var getFoIs: boolean = req.query.getFoIs == 'true' ? true : false; //Querying for resources requires reasoning
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+
         //Define input
-        var input = {propertyURI: propertyURI}
+        var input: IProp = {propertyURI: propertyURI}
+        if(accept == 'application/json'){input.queryType = 'select';}
 
         let sp = new OPMProp(input);
-        const q = sp.listSubscribers();
+        var q = sp.listSubscribers();
         console.log("Querying database to get a list of subscribers to the property:\n"+q);
         let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q});
+        dbConn.getQuery({query: q, accept: accept, reasoning: getFoIs});
         return rp(dbConn.options);
     }
 
@@ -254,7 +261,7 @@ export class PropertyModel extends BaseModel {
         const db: string = req.params.db;
 
         let sp = new OPMProp();
-        const q = sp.getResourceProps();
+        const q = sp.getFoIProps();
         console.log("Querying database to get a full list of properties:\n"+q);
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query: q});
@@ -264,33 +271,57 @@ export class PropertyModel extends BaseModel {
     listDeleted(req: Request){
         const db: string = req.params.db;
 
-        let sp = new OPMProp();
+        //Query parameters
+        var getFoIs: boolean = req.query.getFoIs == 'true' ? true : false; //Querying for resources requires reasoning
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+
+        var input: IProp = {};
+        if(accept == 'application/json'){input.queryType = 'select';}
+
+        let sp = new OPMProp(input);
         const q = sp.listDeleted();
         console.log("Querying database to get list of deleted properties:\n"+q);
         let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q});
+        dbConn.getQuery({query: q, accept: accept, reasoning: getFoIs});
         return rp(dbConn.options);
     }
 
     listOutdated(req: Request){
         const db: string = req.params.db;
 
-        let sp = new OPMCalc();
+        //Query parameters
+        var getFoIs: boolean = req.query.getFoIs == 'true' ? true : false; //Querying for resources requires reasoning
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+        
+        var input: IProp = {};
+        if(accept == 'application/json'){input.queryType = 'select';}
+
+        let sp = new OPMCalc(input);
         const q = sp.listOutdated();
         console.log("Querying database to get list of outdated properties:\n"+q);
         let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q});
+        dbConn.getQuery({query: q, accept: accept, reasoning: getFoIs});
         return rp(dbConn.options);
     }
 
     listAssumptions(req: Request){
         const db: string = req.params.db;
 
-        let sp = new OPMProp();
+        //Query parameters
+        var getFoIs: boolean = req.query.getFoIs == 'true' ? true : false; //Querying for resources requires reasoning
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+        
+        var input: IProp = {};
+        if(accept == 'application/json'){input.queryType = 'select';}
+
+        let sp = new OPMProp(input);
         const q = sp.listAssumptions();
         console.log("Querying database to get assumptions list:\n"+q);
         let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q});
+        dbConn.getQuery({query: q, accept: accept, reasoning: getFoIs});
         return rp(dbConn.options);
     }
     

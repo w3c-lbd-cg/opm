@@ -45,12 +45,12 @@ export class FoIModel extends BaseModel {
                         var property = this.validatePropertyType(d.property,d.validProperties);
                         //Get latest property evaluation
                         var input: IProp = { 
-                            resourceURI: resourceURI, 
-                            propertyURI: property, 
+                            foiURI: resourceURI, 
+                            propertyURI: property,
                             latest: getLatest
                         };
                         let sp = new OPMProp(input);
-                        const q = sp.getResourceProp();
+                        const q = sp.getFoIProp();
                         console.log("Querying database: "+q.replace(/ +(?= )/g,''));
                         let dbConn = new StardogConn(db);
                         dbConn.getQuery({query: q});
@@ -58,9 +58,10 @@ export class FoIModel extends BaseModel {
                     //If general query
                     }else{
                         //Get all properties and their latest evaluations
-                        var input: IProp = { resourceURI: resourceURI, language: "en" };
+                        var input: IProp = { foiURI: resourceURI, language: "en" };
+                        console.log(input);
                         let sp = new OPMProp(input);
-                        const q = sp.getResourceProps();
+                        const q = sp.getFoIProps();
                         console.log("Querying database: "+q.replace(/ +(?= )/g,''));
                         let dbConn = new StardogConn(db);
                         dbConn.getQuery({query: q});
@@ -127,7 +128,7 @@ export class FoIModel extends BaseModel {
                     }
                     //Define input
                     var input: IProp = {
-                            resourceURI: resourceURI,
+                            foiURI: resourceURI,
                             prefixes: [{prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}],
                             value: {
                                 value: valueObj.value,
@@ -139,10 +140,10 @@ export class FoIModel extends BaseModel {
                         input.value.unit = valueObj.unit;
                     };
                     var sp = new OPMProp(input);
-                    var q = sp.putResourceProp();
-                    console.log("Querying database: "+q.replace(/ +(?= )/g,''));
+                    var q = sp.putFoIProp();
+                    console.log("Querying database putFoIProp(): "+q.replace(/ +(?= )/g,''));
                     let dbConn = new StardogConn(db);
-                    dbConn.constructQuery({query: q});
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
                     return rp(dbConn.options)
                         .then(d => {
                             if(!d){
@@ -230,7 +231,7 @@ export class FoIModel extends BaseModel {
                     }
                     //Define input
                     var input: IProp = {
-                            resourceURI: resourceURI,
+                            foiURI: resourceURI,
                             prefixes: [{prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}],
                             value: {
                                 value: valueObj.value,
@@ -242,10 +243,10 @@ export class FoIModel extends BaseModel {
                         input.value.unit = valueObj.unit;
                     };
                     var sp = new OPMProp(input);
-                    var q = sp.postResourceProp();
+                    var q = sp.postFoIProp();
                     console.log("Querying database: "+q.replace(/ +(?= )/g,''));
                     let dbConn = new StardogConn(db);
-                    dbConn.constructQuery({query: q});
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
                     return rp(dbConn.options)
                         .then(d => {
                             //No results means that the property is already defined

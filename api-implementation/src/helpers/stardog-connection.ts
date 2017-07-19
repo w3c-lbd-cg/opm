@@ -32,21 +32,16 @@ export class StardogConn implements rp.RequestPromiseOptions {
     }
 
     getQuery(qs: IQueryString){
+        var accept = qs.accept ? qs.accept : 'application/sparql-results+json';
+        if(accept == 'application/json'){
+            accept = 'application/sparql-results+json';
+        }
+        console.log(accept);
         this.options.method = 'GET';
         this.options.uri += this.db+'/query';
         this.options.qs = qs;
         this.options.headers = {
-            'Accept': 'application/sparql-results+json'
-        };
-        this.options.json = true; // Automatically parses the JSON string in the response
-    }
-
-    constructQuery(qs: IQueryString){
-        this.options.method = 'GET';
-        this.options.uri += this.db+'/query';
-        this.options.qs = qs;
-        this.options.headers = {
-            'Accept': 'application/n-triples'
+            'Accept': accept
         };
         this.options.json = true; // Automatically parses the JSON string in the response
     }

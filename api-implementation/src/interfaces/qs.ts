@@ -5,4 +5,5 @@ export interface IQueryString {
     limit?: string;
     offset?: string;
     timeout?: string;
+    accept?: string;
 }

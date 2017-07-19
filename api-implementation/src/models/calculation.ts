@@ -52,7 +52,7 @@ export class CalculationModel extends BaseModel {
                     const q = sc.postCalc();
                     console.log("Querying database: "+q.replace(/ +(?= )/g,''));
                     let dbConn = new StardogConn(db);
-                    dbConn.constructQuery({query: q});
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
                     return rp(dbConn.options)
                             .then(d => {
                                 if(!d){
@@ -83,7 +83,7 @@ export class CalculationModel extends BaseModel {
         const foi:string = req.params.foi;
         const guid:string = req.params.guid;
         const host: string = req.headers.host.split(':')[0];
-        var input: ICalc = { resourceURI: `https://${host}/${db}/${foi}/${guid}` };    
+        var input: ICalc = { foiURI: `https://${host}/${db}/${foi}/${guid}` };    
         let sc = new OPMCalc(input);
         const q = sc.listOutdated();
         console.log("Querying database: "+q.replace(/ +(?= )/g,''));

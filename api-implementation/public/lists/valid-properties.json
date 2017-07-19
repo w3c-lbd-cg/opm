@@ -25,7 +25,7 @@
         "resourceType": "https://w3id.org/seas/HeatConsumer",
         "properties": [
             {
-                "uri": "https://w3id.org/seas/heatOutput",
+                "uri": "https://w3id.org/seas/consumerHeatOutput",
                 "unit": "W",
                 "datatype": "cdt:ucum"
             },{
