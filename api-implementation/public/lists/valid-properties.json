@@ -1,6 +1,6 @@
 [
     {
-        "resourceType": "https://w3id.org/seas/HeatingSystem",
+        "foiType": "https://w3id.org/seas/HeatingSystem",
         "properties": [
             {
                 "uri": "https://w3id.org/seas/fluidTemperatureDifference",
@@ -22,7 +22,7 @@
             }
         ]
     },{
-        "resourceType": "https://w3id.org/seas/HeatConsumer",
+        "foiType": "https://w3id.org/seas/HeatConsumer",
         "properties": [
             {
                 "uri": "https://w3id.org/seas/consumerHeatOutput",

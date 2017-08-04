@@ -21,8 +21,6 @@ export class StardogConn implements rp.RequestPromiseOptions {
     }
 
     updateQuery(qs: IQueryString){
-        qs.query = qs.query.replace(/ +(?= )/g,''); //remove surplus spaces from query string
-        qs.query = qs.query.replace(/\r?\n|\r/g, ''); //Remove line breaks from query string
         this.options.method = 'POST';
         this.options.uri += this.db+'/update';
         this.options.form = qs;
@@ -36,10 +34,9 @@ export class StardogConn implements rp.RequestPromiseOptions {
         if(accept == 'application/json'){
             accept = 'application/sparql-results+json';
         }
-        console.log(accept);
-        this.options.method = 'GET';
+        this.options.method = 'POST';
         this.options.uri += this.db+'/query';
-        this.options.qs = qs;
+        this.options.form = qs;
         this.options.headers = {
             'Accept': accept
         };
@@ -60,6 +57,11 @@ export class StardogConn implements rp.RequestPromiseOptions {
             'Content-type': 'multipart/form-data'
         };
         this.options.form = body;
+    }
+
+    dropDatabase(db){
+        this.options.method = 'DELETE';
+        this.options.uri += 'admin/databases/'+db;
     }
 
     getNamespaces(){

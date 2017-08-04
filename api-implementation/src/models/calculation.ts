@@ -31,7 +31,7 @@ export class CalculationModel extends BaseModel {
         if(property){
             switch(property) {
                 case "fluidTemperatureDifference":
-                    var graphURI = "https://localhost/seas/HVAC-I";
+                    var graphURI = `https://${host}/${db}/HVAC-I`;
                     var input: ICalc = {
                             args: [
                                 { property: 'seas:fluidSupplyTemperature' },
@@ -50,24 +50,20 @@ export class CalculationModel extends BaseModel {
 
                     let sc = new OPMCalc(input);
                     const q = sc.postCalc();
-                    console.log("Querying database: "+q.replace(/ +(?= )/g,''));
+                    console.log("Querying database to infer new derived values:\n"+q);
                     let dbConn = new StardogConn(db);
                     dbConn.getQuery({query: q, accept: 'application/n-triples'});
                     return rp(dbConn.options)
                             .then(d => {
-                                if(!d){
-                                    errors.error = "All calculated values are up to date";
-                                    errors.statusCode = 200;
-                                    throw errors;
-                                }
+                                if(!d){ this.errorHandler("All calculated values are up to date",200) };
                                 //Isert the triples in the named graph
                                 var q: string = `INSERT DATA {
                                                  GRAPH <${graphURI}> { ${d} }}`;
 
                                 let dbConn = new StardogConn(db);
                                 dbConn.updateQuery({query:q});
-                     
-                                console.log("Querying database: "+q.replace(/ +(?= )/g,''));
+
+                                console.log("Querying database: "+q);
                                 return rp(dbConn.options)
                             });
                 default:
@@ -86,7 +82,7 @@ export class CalculationModel extends BaseModel {
         var input: ICalc = { foiURI: `https://${host}/${db}/${foi}/${guid}` };    
         let sc = new OPMCalc(input);
         const q = sc.listOutdated();
-        console.log("Querying database: "+q.replace(/ +(?= )/g,''));
+        console.log("Querying database: "+q);
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query: q});
         return rp(dbConn.options)

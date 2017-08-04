@@ -2,6 +2,10 @@ import { Request } from "express";
 import * as rp from "request-promise";
 import { StardogConn } from "./../helpers/stardog-connection";
 import * as _ from "underscore";
+import * as _s from 'underscore.string';
+import { OPMProp, IProp } from "opm-query-generator";
+import * as jsonld from 'jsonld';
+var errors = require('request-promise/errors');
 
 var exec = require('child_process').exec;
 var errors = require('request-promise/errors');
@@ -19,7 +23,26 @@ import { GeneralQueries } from "./../queries/general";
 //Interfaces
 import { IQueryString } from "./../interfaces/qs";
 
+//Lists
+var validProperties = require('./../../public/lists/valid-properties.json');
+
+//Queries
+import { FoIQueries } from "./../queries/foi";
+
+//Interfaces
+import { C } from "./../queries/foi";
+import { RUD } from "./../queries/foi";
+import { GetByType } from "./../queries/foi";
+
 export class BaseModel {
+
+    //Error handler
+    errorHandler(msg,code){
+        console.log("Error code "+code+": "+msg);
+        errors.error = msg;
+        errors.statusCode = code;
+        throw errors;
+    }
        
     wipeAll(db,graphURI?){
         if(graphURI){
@@ -34,74 +57,41 @@ export class BaseModel {
         return rp(dbConn.options)
             .then(d => {
                 console.log(d);
-                if(d === 'true'){
-                    return `Successfully wiped the database`;
-                }else{
-                    errors.error = "Could not delete resources";
-                    errors.statusCode = 500;
-                    throw errors;
-                }
+                if(d != 'true'){ this.errorHandler("Error: Could not delete resources",500) }
+                return `Successfully wiped the database`;
             });
     }
     
     checkIfResourceExists(db,URI){
-        let gq = new GeneralQueries;
-        const q = gq.checkIfResourceExists(URI);
+        let fq = new FoIQueries;
+        var args = {foiURI: URI};
+        const q = fq.checkIfFoIExists(args);
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query:q});
-        console.log("Querying database: "+q);
+        console.log("Querying database to check if FoI exists:\n"+q);
         return rp(dbConn.options)
             .then(exist => {
-                if(exist.boolean == true){
-                    return exist;
-                }else{
-                    errors.error = "No entity with the specified URI!";
-                    errors.statusCode = 404;
-                    throw errors;
-                }
-            });
+                if(exist.boolean != true){ this.errorHandler("Error: No entity with the specified URI.",400) }
+                return "Entity exists.";
+            })
     }
 
-    checkIfPropertyDefined(db,resourceURI,propertyURI){
-        var q: string = `SELECT DISTINCT ?property WHERE {
-                                { <${resourceURI}> <${propertyURI}> ?property }
-                            UNION
-                                { GRAPH ?g {
-                                    <${resourceURI}> <${propertyURI}> ?property}
-                                }
-                        }`;
+    checkIfResourceDeleted(db,URI){
+        let fq = new FoIQueries;
+        var args = {foiURI: URI};
+        const q = fq.checkIfFoIDeleted(args);
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options);
+        console.log("Querying database to check if FoI is marked as opm:Deleted:\n"+q);
+        return rp(dbConn.options)
+            .then(deleted => {
+                if(deleted.boolean == true){ this.errorHandler("Error: The entity is marked as deleted. Restore it by PUT "+URI+"?restore=true",400) };
+                return "Entity is not deleted.";
+            })
     }
     
     checkIfGraphExist(db,graph_name){
         const q: string = `ASK WHERE {GRAPH <${graph_name}> {?s ?p ?o}}`;
-        let dbConn = new StardogConn(db);
-        dbConn.getQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options);
-    }
-    
-    deleteEntity(db,URI){
-        const q: string = `DELETE WHERE { 
-                              GRAPH ?g { <${URI}> ?p ?o . }
-                           }`;
-        let dbConn = new StardogConn(db);
-        dbConn.updateQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options);
-    }
-    
-    //Get all properties of a resource
-    getProperties(db,URI){
-        //const q: string = `SELECT ?property ?value WHERE { <${URI}> ?property ?value . }`;
-        const q: string =  `SELECT ?property ?value {
-                                { <${URI}> ?property ?value }
-                            UNION
-                                { graph ?g { <${URI}> ?property ?value } }
-                            }`;
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query:q});
         console.log("Querying database: "+q);
@@ -123,11 +113,8 @@ export class BaseModel {
                 return rp(dbConn.options);
             })
             .then(data => {
-                if(data === 'true'){
-                    errors.error = "Property already exists on this resource.";
-                    errors.statusCode = 400;
-                    throw errors;
-                }
+                if(data === 'true'){ this.errorHandler("Error: Property already exists on this resource.",400) }
+
                 //Get named graph
                 let gq = new GeneralQueries;
                 var q = gq.getResourceNamedGraph(resourceURI);
@@ -137,13 +124,8 @@ export class BaseModel {
                 return rp(dbConn.options);
             })
             .then(data => {
-                if(_.isEmpty(data.results.bindings[0])){
-                    errors.error = "Could not get the named graph";
-                    errors.statusCode = 400;
-                    throw errors;
-                }else{
-                    var graphURI = data.results.bindings[0].g.value;
-                }
+                if(_.isEmpty(data.results.bindings[0])){ this.errorHandler("Error: Could not get the named graph.",500) }
+                var graphURI = data.results.bindings[0].g.value;
                 //Attach property
                 let gq = new GeneralQueries;
                 var q = gq.addObjectProperty(resourceURI, propertyURI, objectURI, graphURI);
@@ -153,13 +135,8 @@ export class BaseModel {
                 return rp(dbConn.options);
             })
             .then(data => {
-                if(data === 'true'){
-                    return `Successfully created object property`;
-                }else{
-                    errors.error = "Could not create resource";
-                    errors.statusCode = 500;
-                    throw errors;
-                }
+                if(data != 'true'){ this.errorHandler("Error: Could not create resource.",500) }
+                return `Successfully created object property`;
             });
     }
     
@@ -181,128 +158,117 @@ export class BaseModel {
         return rp(dbConn.options);
     }
     
-    loadTTL(db, file, named_graph_URI){
-        const q = `LOAD <${file}> INTO GRAPH <${named_graph_URI}>`;
-        let dbConn = new StardogConn(db);
-        dbConn.updateQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options);
-    }
-    
-    getPropertyRange(db, URI){
-        const q = `SELECT DISTINCT ?range WHERE { GRAPH ?g { <${URI}> rdfs:range ?range } }`;
-        let dbConn = new StardogConn(db);
-        dbConn.getQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options).then(data => {
-            if(data.results.bindings.length >= 0){
-                return data.results.bindings[0].range;
-            }else {
-                errors.error = "Could not find the range of the specified property. Is the ontology loaded in the database?";
-                errors.statusCode = 500;
-                throw errors;
-            }
-        });
-    }
-    
     executeCmd(cmd): any{
         console.log("Executing command: "+cmd);
         return _exec(cmd).then(result => {
-            if(result.stderr){
-                errors.error = result.stderr;
-                errors.statusCode = 500;
-                throw errors;
-            }else{
-                return result.stdout;
-            }
+            if(result.stderr){ this.errorHandler(result.stderr,500) }
+            return result.stdout;
         });
     }
-    
-    getResourcesOfType(req,typeURI,graphURI?){
-        //Define constants
-        const db: string = req.params.db;
-        var q: string;
-        //Query DB
-        if(!graphURI){
-            q = `SELECT ?entity ?label WHERE { ?entity a <${typeURI}> . OPTIONAL { ?entity rdfs:label ?label } . }`;
-        }else{
-            q = `SELECT ?entity ?label WHERE { GRAPH <${graphURI}> { ?entity a <${typeURI}> . OPTIONAL { ?entity rdfs:label ?label } . }}`;
-        }
-        let dbConn = new StardogConn(db);
-        dbConn.getQuery({query:q});
-        console.log("Querying database: "+q);
-        return rp(dbConn.options);
-    }
-    
-    createNewResource(req,typeURI,graphURI?){
-        //Define constants
-        const type: string = typeURI.replace('#','/').split('/').pop(-1); //The type is the last part of the type URI
-        const db: string = req.params.db;
-        const label: string = req.body.label;
-        const comment: string = req.body.comment;
-        
-        //Create a URI for the resource
-        let uf = new UriFunctions(req, type);
-        var URI = uf.newUri();
-        
-        //Construct query
+
+    writeTriples(triples, graphURI, db, errorMsg){
+        //Isert the triples in the named graph
         var q: string = `INSERT DATA {
-                            GRAPH <${graphURI}> { 
-                                <${URI}> a <${typeURI}> .`;
-        q+= label ? `<${URI}> rdfs:label "${label}"^^xsd:string .` : '';
-        q+= comment ? `<${URI}> rdfs:comment "${comment}"^^xsd:string .` : '';
-        q+='}}';
-        //Put it in the DB
+                            GRAPH <${graphURI}> { ${triples} }}`;
+
         let dbConn = new StardogConn(db);
-        dbConn.updateQuery({query: q});
-        console.log("Querying database: "+q);
+        dbConn.updateQuery({query:q});
+
+        console.log("Writing triples: "+q);
         return rp(dbConn.options)
-            .then(d => {
-                if(d == 'true'){
-                    return {message: "Successfully created resource", URIs: [URI]};
-                }else{
-                    errors.error = "Could not create resource";
-                    errors.statusCode = 500;
-                    throw errors;
-                }
-            })
+                .then(qres => {
+                    if(qres != 'true'){ this.errorHandler(errorMsg,500) }
+                    return;
+                })
     }
-    
-    deleteResource(req){
-        //Define constants
-        const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
-        const URI: string = `https://${host}${req.originalUrl}`;
-        
-        //Check if resource exists and delete if true
-        return this.checkIfResourceExists(db,URI)
-            .then(data => {
-                let bm = new BaseModel;
-                return bm.deleteEntity(db,URI)
-            })
-            .then(result => {
-                if(result == 'true'){
-                    return `Resource ${URI} successfully deleted`;
-                }else{
-                    errors.error = "Could not delete resource";
-                    errors.statusCode = 500;
-                    throw errors;
+
+    /**
+     * VALIDATION
+     */
+
+    validateValue(value,propertyTypeURI){
+        var valueObj = this.separateValueUnit(value);
+        var propertyTypeURI = propertyTypeURI.replace("seas:", "https://w3id.org/seas/");
+
+        //Get restriction (what type of unit etc.)
+        //var propertyRestrictions = this.getPropertyRestrictions(propertyTypeURI,validProperties);
+        var propertyRestrictions = _.chain(validProperties)
+                .map(item => item.properties)
+                .flatten()
+                .filter(obj => (obj.uri == propertyTypeURI))
+                .first()
+                .value();
+
+        if(propertyRestrictions){
+            //For regular quantifiable properties
+            if(!propertyRestrictions.objectProperty){
+                //Unit correct?
+                if(valueObj.unit != propertyRestrictions.unit){
+                    this.errorHandler("Error: Unit mismatch. Expected unit: "+propertyRestrictions.unit,400);
                 }
-            });
+            //For object properties - WIP
+            }else{
+                if(!_s.startsWith(value, 'http')){
+                    this.errorHandler("Error: Target of an object property must be a valid URI",400);
+                }
+                return "Object properties will be implemented later";
+            }
+
+        }
+        return "Value OK!";
     }
-    
-    getResourceProperties(req){
-        //Define constants
-        const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
-        const URI: string = `https://${host}${req.originalUrl}`;
-        
-        //Check if resource exists and delete if true
-        return this.checkIfResourceExists(db,URI)
-            .then(exist => {
-                let bm = new BaseModel;
-                return bm.getProperties(db,URI);
-            });
+
+    separateValueUnit(string){
+        var str = _s.clean(string); //Clean
+        //If it contains a space it has a unit assigned to it
+        if(_s.contains(str, ' ')){
+            var value: string = _s.strLeft(str, ' ');
+            var unit: string = _s.strRight(str, ' ');
+        }else{
+            var value: string = str;
+        }
+        return {value: value, unit: unit};
+    }
+
+    validateFoIType(foiType){
+        //Check if the recieved FoI is valid
+        var foiTypes = _.pluck(validProperties, 'foiType');
+        var index = foiTypes.indexOf(foiType);
+        if(index != -1){
+            return validProperties[index].properties;
+        }else{
+            this.errorHandler("Error: Not a valid FoI-type",400);
+        }
+    }
+
+    validatePropertyType(property,validProperties){
+        //Match only on the part after last '/'
+        var propertyValid = _.chain(validProperties)
+                                .pluck('uri')
+                                .map(item => {
+                                    if(_s.contains(item, '/')){
+                                        return _s.strRightBack(item, '/');
+                                    }else if(_s.contains(item, '#')){
+                                        return _s.strRightBack(item, '#');
+                                    }
+                                    return item;
+                                })
+                                .contains(_s.strRightBack(property, '/'))
+                                .value();
+        if(!_s.startsWith(property, 'http')) property = 'seas:'+property;
+        if(!propertyValid){ this.errorHandler("Error: Not a valid property-type",400); }
+        return property;
+    }
+
+    getPropertyRestrictions(propertyTypeURI,validProperties){
+        return _.chain(validProperties)
+                .filter(obj => {
+                    var propEnd1 = _s.strRightBack(obj.uri, "/");
+                    var propEnd2 = _s.strRightBack(obj.uri, "#");
+                    return (propEnd1 == propertyTypeURI || propEnd2 == propertyTypeURI);
+                })
+                .first()
+                .value();
     }
 
 }
