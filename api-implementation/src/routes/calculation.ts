@@ -29,9 +29,19 @@ export class CalculationRoute extends BaseRoute {
       new CalculationRoute().createCalculation(req, res, next);
     });
 
-    //Check if a FoI is outdated
-    router.get("/:db/:foi/:guid/outdated", (req: Request, res: Response, next: NextFunction) => {
-      new CalculationRoute().getOutdatedOnResource(req, res, next);
+    //Assign calculation to all new FoIs
+    router.post("/:db/Calculation/:guid", (req: Request, res: Response, next: NextFunction) => {
+      new CalculationRoute().reAssignCalculation(req, res, next);
+    });
+
+    //Re-run calculation for all FoIs where input has changed
+    router.put("/:db/Calculation/:guid", (req: Request, res: Response, next: NextFunction) => {
+      new CalculationRoute().reRunCalculation(req, res, next);
+    });
+
+    //add List calculations route
+    router.get("/:db/Calculations", (req: Request, res: Response, next: NextFunction) => {
+      new CalculationRoute().listCalculations(req, res, next);
     });
   }
 
@@ -49,11 +59,26 @@ export class CalculationRoute extends BaseRoute {
   * The Calculation route.
   *
   * @class CalculationRoute
+  * @method listCalculations
   * @method createCalculation
+  * @method reAssignCalculation
+  * @method reRunCalculation
   * @param req {Request} The express Request object.
   * @param res {Response} The express Response object.
   * @next {NextFunction} Execute the next method.
   */
+  public listCalculations(req: Request, res: Response, next: NextFunction) {
+    console.time("listCalculations");
+    let cm = new CalculationModel();
+    cm.listCalculations(req)
+      .then(data =>  {
+        console.timeEnd("listCalculations");
+        res.send(data);
+      })
+      .catch(err => {
+        next(err);
+      });
+  }
   public createCalculation(req: Request, res: Response, next: NextFunction) {
     console.time("createCalculation");
     let cm = new CalculationModel();
@@ -66,13 +91,24 @@ export class CalculationRoute extends BaseRoute {
         next(err);
       });
   }
-
-  public getOutdatedOnResource(req: Request, res: Response, next: NextFunction) {
-    console.time("getOutdatedOnResource");
+  public reAssignCalculation(req: Request, res: Response, next: NextFunction) {
+    console.time("reAssignCalculation");
     let cm = new CalculationModel();
-    cm.getOutdatedOnResource(req)
+    cm.reAssignCalculation(req)
       .then(data =>  {
-        console.timeEnd("getOutdatedOnResource");
+        console.timeEnd("reAssignCalculation");
+        res.send(data);
+      })
+      .catch(err => {
+        next(err);
+      });
+  }
+  public reRunCalculation(req: Request, res: Response, next: NextFunction) {
+    console.time("reRunCalculation");
+    let cm = new CalculationModel();
+    cm.reRunCalculation(req)
+      .then(data =>  {
+        console.timeEnd("reRunCalculation");
         res.send(data);
       })
       .catch(err => {

@@ -40,10 +40,6 @@ export class FoIRoute extends BaseRoute {
     router.put("/:db/:foi/:guid", (req: Request, res: Response, next: NextFunction) => {
       new FoIRoute().putFoI(req, res, next);
     });
-    //add Show Deleted Features of Interest of type route
-    router.get("/:db/:foi/deleted", (req: Request, res: Response, next: NextFunction) => {
-      new FoIRoute().showDeleted(req, res, next);
-    });
     //add Get Feature of Interest Properties route
     router.get("/:db/:foi/:guid", (req: Request, res: Response, next: NextFunction) => {
       new FoIRoute().getFoIProps(req, res, next);
@@ -72,7 +68,6 @@ export class FoIRoute extends BaseRoute {
    * @method postFoI
    * @method deleteFoI
    * @method putFoI
-   * @method showDeleted
    * @method getFoIProps
    * @method postFoIProp
    * @param req {Request} The express Request object.
@@ -121,18 +116,6 @@ export class FoIRoute extends BaseRoute {
     fm.putFoI(req)
       .then(data =>  {
         console.timeEnd("putFoI");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public showDeleted(req: Request, res: Response, next: NextFunction) {
-    console.time("showDeleted");
-    let fm = new FoIModel();
-    fm.getFoIs(req, 'deleted')
-      .then(data =>  {
-        console.timeEnd("showDeleted");
         res.send(data);
       })
       .catch(err => {

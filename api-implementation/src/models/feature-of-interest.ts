@@ -29,8 +29,22 @@ import { GetByType } from "./../queries/foi";
 var validProperties = require('./../../public/lists/valid-properties.json');
 
 export class FoIModel extends BaseModel {
+
+    private restrictions: string[] = ['deleted', 'assumptions', 'derived', 'confirmed'];
+    private reliabilities: string[] = ['assumption', 'confirmed'];
+
+    /**
+     * 
+     * @method getFoIs(req, restriction)    //Get a list of all FoIs or only deleted FoIs
+     * @method postFoI(req)                 //Create a new FoI
+     * @method deleteFoI(req)               //Delete a FoI
+     * @method putFoI(req)                  //Update or restore a FoI
+     * @method getFoIProps(req, restriction)//Get a list of all properties of a FoI
+     * @method postFoIProp(req)             //Create a property attached to a FoI
+     */
+
     //Get FoIs
-    getFoIs(req: Request, restriction?: string){
+    getFoIs(req: Request){
         const db: string = req.params.db;
         const foiType: string = req.params.foi;
         const typeURI: string = 'https://w3id.org/seas/'+foiType;
@@ -38,11 +52,18 @@ export class FoIModel extends BaseModel {
         //Headers
         var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
 
+        //Query parameters
+        var restriction: string = req.query.restriction;
+
         //Define arguments for getAllOfType()
         var args: GetByType = {typeURI: typeURI}
         args.queryType = (accept == 'application/json') ? 'select' : 'construct';
         //Restrictions
-        if(restriction){ args.restriction = restriction };
+        if(restriction){
+            var options = this.restrictions;
+            if(options.indexOf(restriction) == -1){this.errorHandler("Error: Unknown restriction. Use either "+_s.toSentence(options, ', ', ' or '), 400)};
+            args.restriction = restriction;
+        };
 
         //Validate FoI Type
         return new Promise ((resolve, reject) => resolve(this.validateFoIType(typeURI)))
@@ -203,12 +224,20 @@ export class FoIModel extends BaseModel {
         var property = req.query.property;                                      //If querying for a specific property
         var latest: boolean = req.query.latest == 'true' ? true : false;     //If querying for only the latest property evaluation
         var language: string = req.query.language ? req.query.language : 'en';  //Default language english
+        var restriction: string = req.query.restriction;
 
         //Set arguments for get query
         var args: IProp = { foiURI: foiURI, language: language };
+
         args.queryType = (accept == 'application/json') ? 'select' : 'construct';
         if(latest){ args.latest = latest };                 //Return only latest?
         if(property){ args.property = 'seas:'+property };   //Query for specific property?
+        //Restrictions
+        if(restriction){
+            var options = this.restrictions;
+            if(options.indexOf(restriction) == -1){this.errorHandler("Error: Unknown restriction. Use either "+_s.toSentence(options, ', ', ' or '), 400)};
+            args.restriction = restriction;
+        };
 
         return this.checkIfResourceExists(db,foiURI)
                 .then(d => {
@@ -236,6 +265,8 @@ export class FoIModel extends BaseModel {
         //Body
         var value = req.body.value; //Clean
         var valueObj = this.separateValueUnit(value);
+        const reliability: string = req.body.reliability;   //Optional: How reliable is the property?
+        const comment: string = req.body.comment;           //Optional: Property description?
 
         //Query parameters
         var property = req.query.property; //If querying for a specific property
@@ -270,6 +301,13 @@ export class FoIModel extends BaseModel {
                     if(valueObj.unit){
                         input.value.unit = valueObj.unit;
                     };
+                    if(reliability){
+                        var options = this.reliabilities;
+                        if(options.indexOf(reliability) == -1){
+                            this.errorHandler("Error: Unknown reliability definition. Use either "+_s.toSentence(options, ', ', ' or '), 400)
+                        };
+                        input.reliability = reliability;
+                    }
                     
                     //Generate query
                     var sp = new OPMProp(input);

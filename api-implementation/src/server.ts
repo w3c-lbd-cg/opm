@@ -134,16 +134,17 @@ export class Server {
     //use cors middleware
     router.use(cors(options));
     
-    //AdminRoute
-    AdminRoute.create(router);
-
     //Property Route
     PropertyRoute.create(router);
 
     //Calculation Route
     CalculationRoute.create(router);
 
+    //AdminRoute
+    AdminRoute.create(router);
+
     //Feature of Interest Route
+    //Must be loaded in last as /:db/:foi should come after /:db/Properties and /:db/Calculations
     FoIRoute.create(router);
 
     //use router middleware

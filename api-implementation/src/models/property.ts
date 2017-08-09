@@ -21,6 +21,9 @@ import { AppConfig } from './../config/app';
 
 export class PropertyModel extends BaseModel {
 
+    private restrictions: string[] = ['deleted', 'assumption', 'derived', 'confirmed', 'outdated'];
+    private reliabilities: string[] = ['assumption', 'confirmed'];
+
     deleteProperty(req: Request){
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
@@ -95,7 +98,8 @@ export class PropertyModel extends BaseModel {
         //Body
         var value = req.body.value;
         var valueObj = this.separateValueUnit(value);
-        const comment: string = req.body.comment;       //Optional: Why is it updated?
+        const comment: string = req.body.comment;           //Optional: Why is it updated?
+        const reliability: string = req.body.reliability;   //Optional: How reliable is the property?
 
         //Query parameters
         var setReliability: string = req.query.setReliability;
@@ -111,7 +115,13 @@ export class PropertyModel extends BaseModel {
         
         //Define input
         var input: IProp = { propertyURI: propertyURI, userURI: dummyUser, comment: comment };
-
+        if(reliability){
+            var options = this.reliabilities;
+            if(options.indexOf(reliability) == -1){
+                this.errorHandler("Error: Unknown reliability definition. Use either "+_s.toSentence(options, ', ', ' or '), 400)
+            };
+            input.reliability = reliability;
+        }
         return this.checkIfResourceExists(db,propertyURI)
                 .then(d => {
                     //Get named graph
@@ -239,8 +249,12 @@ export class PropertyModel extends BaseModel {
         //Query parameters
         var getLatest: boolean = req.query.latest == 'true' ? true : false; //If querying for only the latest property evaluation
 
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+
         //Define input
         var input: IProp = { propertyURI: propertyURI, latest: getLatest };
+        if(accept == 'application/json'){input.queryType = 'select';}
 
         return this.checkIfResourceExists(db,propertyURI)
                 .then(d => {
@@ -249,7 +263,7 @@ export class PropertyModel extends BaseModel {
                     const q = sp.getProp();
                     console.log("Querying database to get property data:\n"+q);
                     let dbConn = new StardogConn(db);
-                    dbConn.getQuery({query: q});
+                    dbConn.getQuery({query: q, accept: accept});
                     return rp(dbConn.options);
                 })
     }
@@ -277,43 +291,39 @@ export class PropertyModel extends BaseModel {
         return rp(dbConn.options);
     }
 
-    listProperties(req: Request, restriction?: string){
+    listProperties(req: Request){
         const db: string = req.params.db;
 
         //Headers
         var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+
+        //Query parameters
+        var restriction: string = req.query.restriction;
 
         //Define arguments for getFoIProps()
         var args: IProp = {latest: true};
         args.queryType = (accept == 'application/json') ? 'select' : 'construct';
         //Restrictions
-        if(restriction){ args.restriction = restriction };
-
-        let sp = new OPMProp(args);
-        const q = sp.getFoIProps();
+        if(restriction){
+            var options = this.restrictions;
+            if(options.indexOf(restriction) == -1){this.errorHandler("Error: Unknown restriction. Use either "+_s.toSentence(options, ', ', ' or '), 400)};
+            args.restriction = restriction;
+        };
+        
+        if(restriction == 'outdated'){
+            let sp = new OPMCalc;
+            var q = sp.listOutdated(args);
+        }else{
+            let sp = new OPMProp(args);
+            var q = sp.getFoIProps();
+        }
 
         console.log("Querying database to list properties:\n"+q);
+        if(restriction){
+            console.log("Querying database to list "+restriction+" properties:\n"+q);
+        }
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query: q, accept: accept});
-        return rp(dbConn.options);
-    }
-
-    listOutdated(req: Request){
-        const db: string = req.params.db;
-
-        //Query parameters
-        var getFoIs: boolean = req.query.getFoIs == 'true' ? true : false; //Querying for resources requires reasoning
-        //Headers
-        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
-        
-        var input: IProp = {};
-        if(accept == 'application/json'){input.queryType = 'select';}
-
-        let sp = new OPMCalc(input);
-        const q = sp.listOutdated();
-        console.log("Querying database to get list of outdated properties:\n"+q);
-        let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q, accept: accept, reasoning: getFoIs});
         return rp(dbConn.options);
     }
 

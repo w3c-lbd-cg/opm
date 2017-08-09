@@ -78,7 +78,7 @@ export class FoIQueries {
         q+= `WHERE {\n`;
         q+= '\t#GENERATE URI FOR NEW CLASS INSTANCE\n';
         q+= '\tBIND(REPLACE(STR(UUID()), \"urn:uuid:\", \"\") AS ?guid)\n';
-        q+= `\tBIND(URI(CONCAT(STR("${hostURI}"), "/Calculation/", ?guid)) AS ?foiURI)\n`;
+        q+= `\tBIND(URI(CONCAT(STR("${hostURI}"), "/${type}/", ?guid)) AS ?foiURI)\n`;
         q+= '\t#GET CURRENT TIME\n';
         q+= '\tBIND(now() AS ?now)\n';
         q+= '}';

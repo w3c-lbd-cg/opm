@@ -49,31 +49,6 @@ export class PropertyRoute extends BaseRoute {
       new PropertyRoute().listProperties(req, res, next);
     });
 
-    //add List Deleted properties route
-    router.get("/:db/Properties/deleted", (req: Request, res: Response, next: NextFunction) => {
-      new PropertyRoute().listDeleted(req, res, next);
-    });
-
-    //add List Assumptions route
-    router.get("/:db/Properties/assumptions", (req: Request, res: Response, next: NextFunction) => {
-      new PropertyRoute().listAssumptions(req, res, next);
-    });
-
-    //add List Confirmed route
-    router.get("/:db/Properties/confirmed", (req: Request, res: Response, next: NextFunction) => {
-      new PropertyRoute().listConfirmed(req, res, next);
-    });
-
-    //add List Derived route
-    router.get("/:db/Properties/derived", (req: Request, res: Response, next: NextFunction) => {
-      new PropertyRoute().listDerived(req, res, next);
-    });
-
-    //add List Outdated properties route
-    router.get("/:db/Properties/outdated", (req: Request, res: Response, next: NextFunction) => {
-      new PropertyRoute().listOutdated(req, res, next);
-    });
-
   }
 
   /**
@@ -95,11 +70,6 @@ export class PropertyRoute extends BaseRoute {
   * @method updateProperty
   * @method deleteProperty
   * @method listProperties
-  * @method listDeleted
-  * @method listAssumptions
-  * @method listConfirmed
-  * @method listDerived
-  * @method listOutdated
   * @param req {Request} The express Request object.
   * @param res {Response} The express Response object.
   * @next {NextFunction} Execute the next method.
@@ -158,66 +128,6 @@ export class PropertyRoute extends BaseRoute {
     pm.listProperties(req)
       .then(data =>  {
         console.timeEnd("listProperties");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public listDeleted(req: Request, res: Response, next: NextFunction) {
-    console.time("listDeleted");
-    let pm = new PropertyModel();
-    pm.listProperties(req, 'deleted')
-      .then(data =>  {
-        console.timeEnd("listDeleted");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public listAssumptions(req: Request, res: Response, next: NextFunction) {
-    console.time("listAssumptions");
-    let pm = new PropertyModel();
-    pm.listProperties(req, 'assumptions')
-      .then(data =>  {
-        console.timeEnd("listAssumptions");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public listConfirmed(req: Request, res: Response, next: NextFunction) {
-    console.time("listConfirmed");
-    let pm = new PropertyModel();
-    pm.listProperties(req, 'confirmed')
-      .then(data =>  {
-        console.timeEnd("listConfirmed");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public listDerived(req: Request, res: Response, next: NextFunction) {
-    console.time("listDerived");
-    let pm = new PropertyModel();
-    pm.listProperties(req, 'derived')
-      .then(data =>  {
-        console.timeEnd("listDerived");
-        res.send(data);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
-  public listOutdated(req: Request, res: Response, next: NextFunction) {
-    console.time("listOutdated");
-    let pm = new PropertyModel();
-    pm.listOutdated(req)
-      .then(data =>  {
-        console.timeEnd("listOutdated");
         res.send(data);
       })
       .catch(err => {
