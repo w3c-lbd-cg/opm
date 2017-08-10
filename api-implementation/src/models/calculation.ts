@@ -73,23 +73,7 @@ export class CalculationModel extends BaseModel {
                         }else{ this.errorHandler("Error: Could not create new calculation",500) }
                     })
                     .then(d => {
-                        //Parse n-triples to JSON-LD
-                        var promises = jsonld.promises;
-                        return promises.fromRDF(ntriples, {format: 'application/nquads'});
-                    })
-                    .then(d => {
-                        var context = {
-                            "@base": hostURI,
-                            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                            "xsd": "http://www.w3.org/2001/XMLSchema#",
-                            "prov": "http://www.w3.org/ns/prov#",
-                            "sd": "http://www.w3.org/ns/sparql-service-description#",
-                            "opm": "https://w3id.org/opm#",
-                            "cdt": "http://w3id.org/lindt/custom_datatypes#"
-                        };
-                        var promises = jsonld.promises;
-                        return promises.compact(d, context);
+                        return this.convertToJSONLD(ntriples);
                     });
     }
 
@@ -101,37 +85,51 @@ export class CalculationModel extends BaseModel {
         const hostURI: string = `https://${host}/${db}`;
         const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
 
+        var ntriples: string;
+
         //Get calculation data
         var args: ICalc = {calculationURI: calculationURI, queryType: 'construct'};
         let sc = new OPMCalc;
         const q = sc.getCalcData(args);
         console.log("Querying database to get calculation data:\n"+q);
         let dbConn = new StardogConn(db);
-        dbConn.getQuery({query: q, accept: 'application/ld+json'});
+        dbConn.getQuery({query: q, accept: 'application/n-triples'});
         return rp(dbConn.options)
                 .then(d => {
-                    var context = {
-                        "@base": hostURI,
-                        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                        "xsd": "http://www.w3.org/2001/XMLSchema#",
-                        "prov": "http://www.w3.org/ns/prov#",
-                        "sd": "http://www.w3.org/ns/sparql-service-description#",
-                        "opm": "https://w3id.org/opm#",
-                        "cdt": "http://w3id.org/lindt/custom_datatypes#"
-                    };
-                    var promises = jsonld.promises;
-                    return promises.compact(d, context);
+                    return this.convertToJSONLD(d);
                 })
                 .then(d => {
+                    //Map prefixes
+                    var prefixes = [];
+                    _.each(d["@context"], (value, key) => {
+                        prefixes.push({prefix: key, uri: value});
+                        return;
+                    });
+                    //Define input for calculation
                     var input = {
+                        calculationURI: calculationURI,
                         expression: d["opm:expression"],
                         inferredProperty: d["opm:inferredProperty"]["@id"],
                         argumentPaths: d["opm:argumentPaths"]["@list"],
-                        unit: d["opm:unit"]
+                        unit: {value: d["opm:unit"]["@value"], datatype: d["opm:unit"]["@type"]},
+                        prefixes: prefixes
                     }
-                    return input;
+                    //Generate query
+                    let sc = new OPMCalc;
+                    const q = sc.postCalc(input);
+                    console.log("Querying database to infer new calculated properties:\n"+q);
+                    let dbConn = new StardogConn(db);
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
+                    return rp(dbConn.options);
                 })
+                .then(d => {
+                    ntriples = d;
+                    //NEXT: WRITE TO DB
+                    return d;
+                })
+                .then(d => {
+                    return this.convertToJSONLD(ntriples);
+                });
     }
 
     //Re-run calculation in all situations where the specified criteria are met.
