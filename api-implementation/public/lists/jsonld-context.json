@@ -5,5 +5,6 @@
     {"prefix": "prov", "uri": "http://www.w3.org/ns/prov#"},
     {"prefix": "sd", "uri": "http://www.w3.org/ns/sparql-service-description#"},
     {"prefix": "opm", "uri": "https://w3id.org/opm#"},
-    {"prefix": "cdt", "uri": "http://w3id.org/lindt/custom_datatypes#"}
+    {"prefix": "cdt", "uri": "http://w3id.org/lindt/custom_datatypes#"},
+    {"prefix": "seas", "uri": "https://w3id.org/seas/"}
 ]

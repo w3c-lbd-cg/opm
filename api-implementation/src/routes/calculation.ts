@@ -29,9 +29,9 @@ export class CalculationRoute extends BaseRoute {
       new CalculationRoute().createCalculation(req, res, next);
     });
 
-    //Assign calculation to all new FoIs
+    //Attach calculation to all new FoIs
     router.post("/:db/Calculation/:guid", (req: Request, res: Response, next: NextFunction) => {
-      new CalculationRoute().reAssignCalculation(req, res, next);
+      new CalculationRoute().attachCalculation(req, res, next);
     });
 
     //Re-run calculation for all FoIs where input has changed
@@ -42,6 +42,14 @@ export class CalculationRoute extends BaseRoute {
     //add List calculations route
     router.get("/:db/Calculations", (req: Request, res: Response, next: NextFunction) => {
       new CalculationRoute().listCalculations(req, res, next);
+    });
+    //add Put calculations route
+    router.put("/:db/Calculations", (req: Request, res: Response, next: NextFunction) => {
+      new CalculationRoute().putCalculations(req, res, next);
+    });
+    //add Get calculation route
+    router.get("/:db/Calculation/:guid", (req: Request, res: Response, next: NextFunction) => {
+      new CalculationRoute().getCalculation(req, res, next);
     });
   }
 
@@ -60,8 +68,10 @@ export class CalculationRoute extends BaseRoute {
   *
   * @class CalculationRoute
   * @method listCalculations
+  * @method putCalculations
+  * @method getCalculation
   * @method createCalculation
-  * @method reAssignCalculation
+  * @method attachCalculation
   * @method reRunCalculation
   * @param req {Request} The express Request object.
   * @param res {Response} The express Response object.
@@ -73,6 +83,30 @@ export class CalculationRoute extends BaseRoute {
     cm.listCalculations(req)
       .then(data =>  {
         console.timeEnd("listCalculations");
+        res.send(data);
+      })
+      .catch(err => {
+        next(err);
+      });
+  }
+  public putCalculations(req: Request, res: Response, next: NextFunction) {
+    console.time("putCalculations");
+    let cm = new CalculationModel();
+    cm.putCalculations(req)
+      .then(data =>  {
+        console.timeEnd("putCalculations");
+        res.send(data);
+      })
+      .catch(err => {
+        next(err);
+      });
+  }
+  public getCalculation(req: Request, res: Response, next: NextFunction) {
+    console.time("getCalculation");
+    let cm = new CalculationModel();
+    cm.getCalculation(req)
+      .then(data =>  {
+        console.timeEnd("getCalculation");
         res.send(data);
       })
       .catch(err => {
@@ -91,12 +125,12 @@ export class CalculationRoute extends BaseRoute {
         next(err);
       });
   }
-  public reAssignCalculation(req: Request, res: Response, next: NextFunction) {
-    console.time("reAssignCalculation");
+  public attachCalculation(req: Request, res: Response, next: NextFunction) {
+    console.time("attachCalculation");
     let cm = new CalculationModel();
-    cm.reAssignCalculation(req)
+    cm.attachCalculation(req)
       .then(data =>  {
-        console.timeEnd("reAssignCalculation");
+        console.timeEnd("attachCalculation");
         res.send(data);
       })
       .catch(err => {

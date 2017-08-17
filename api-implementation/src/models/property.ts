@@ -3,8 +3,7 @@ import * as rp from "request-promise";
 var errors = require('request-promise/errors');
 import * as _ from "underscore";
 import * as _s from "underscore.string";
-//import { OPMProp, OPMCalc, IProp, ICalc } from "opm-query-generator";
-import { OPMProp, OPMCalc, IProp, ICalc } from "opm-query-generator";
+import { OPMProp } from "opm-query-generator";
 import { StardogConn } from "./../helpers/stardog-connection";
 import * as jsonld from 'jsonld';
 
@@ -18,6 +17,9 @@ import { GeneralQueries } from "./../queries/general";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+
+//Interfaces
+import { PutProp, PostPutFoIProp, GetProp } from "opm-query-generator";
 
 export class PropertyModel extends BaseModel {
 
@@ -35,7 +37,7 @@ export class PropertyModel extends BaseModel {
         const comment: string = req.body.string;       //Optional: Why is it deleted?
 
         //Define input
-        var input: IProp = { propertyURI: propertyURI, comment: comment, userURI: dummyUser };
+        var input = { propertyURI: propertyURI, comment: comment, userURI: dummyUser };
 
         //Empty variables
         var graphURI: string = '';
@@ -58,8 +60,8 @@ export class PropertyModel extends BaseModel {
                         })
                 })
                 .then(d => {
-                    let sp = new OPMProp(input);
-                    const q = sp.deleteProp();
+                    let sp = new OPMProp();
+                    const q = sp.deleteProp(input);
                     console.log("Querying database for delete prop construct:\n"+q);
                     let dbConn = new StardogConn(db);
                     dbConn.getQuery({query: q, accept: 'application/n-triples'});
@@ -97,12 +99,12 @@ export class PropertyModel extends BaseModel {
         
         //Body
         var value = req.body.value;
-        var valueObj = this.separateValueUnit(value);
         const comment: string = req.body.comment;           //Optional: Why is it updated?
-        const reliability: string = req.body.reliability;   //Optional: How reliable is the property?
+        var reliability: string = req.body.reliability;   //Optional: How reliable is the property?
 
         //Query parameters
         var setReliability: string = req.query.setReliability;
+        if(setReliability) reliability = setReliability;
         var restore: boolean = req.query.restore == 'true' ? true : false; //If a deleted property should be restored
 
         if(restore == true && setReliability){
@@ -114,7 +116,7 @@ export class PropertyModel extends BaseModel {
         var ntriples: string = '';
         
         //Define input
-        var input: IProp = { propertyURI: propertyURI, userURI: dummyUser, comment: comment };
+        var input: any = { propertyURI: propertyURI, userURI: dummyUser, comment: comment };
         if(reliability){
             var options = this.reliabilities;
             if(options.indexOf(reliability) == -1){
@@ -141,49 +143,29 @@ export class PropertyModel extends BaseModel {
                 .then(d => {
                     if(restore){
                         //Restore property
-                        let sp = new OPMProp(input);
-                        const q = sp.restoreProp();
+                        let sp = new OPMProp();
+                        const q = sp.restoreProp(input);
                         console.log("Querying database to restore property:\n"+q);
                         let dbConn = new StardogConn(db);
                         dbConn.getQuery({query: q, accept: 'application/n-triples'});
-                        return rp(dbConn.options)
-                                .then(d => {
-                                    if(!d){ this.errorHandler("Error: Could not restore the property",500) }                                        
-                                    //Store created triples
-                                    ntriples = d;
-
-                                    //Write new property to datastore
-                                    var errorMsg = "Could not create property";
-                                    return this.writeTriples(d, graphURI, db, errorMsg);
-                                })
-                                .then(d => {
-                                    //Parse n-triples to JSON-LD
-                                    var promises = jsonld.promises;
-                                    return promises.fromRDF(ntriples, {format: 'application/nquads'});
-                                });
+                        return rp(dbConn.options);
                     }else if(setReliability){
-                        switch(setReliability) {
-                            case "confirmed":
-                                var errorMsg = "Error: Could not confirm the property. Is the property deleted? Is it already confirmed? Is it a derived property? These are automatically confirmed when all arguments are confirmed."
-                                break;
-                            case "assumption":
-                                var errorMsg = "Error: Could not set the property as assumption. Is the property deleted? Is it confirmed? Is it already an assumption? Is it a derived property? These are automatically set as assumptions when all arguments are assumptions."
-                                break;
-                            default:
-                                this.errorHandler("Error: Not a valid reliability property",400);
-                        }
-                        return this.setPropertyReliability(db, input, setReliability, graphURI, errorMsg);
+                        //Set property reliability
+                        let sp = new OPMProp();
+                        const q = sp.setReliability(input);
+                        console.log("Querying database to set reliability of property:\n"+q);
+                        let dbConn = new StardogConn(db);
+                        dbConn.getQuery({query: q, accept: 'application/n-triples'});
+                        return rp(dbConn.options);
                     }else{
                         //Regular property update
-                        if(!value){
-                            this.errorHandler("Error: No value specified",400);
-                        }
+                        if(!value){ this.errorHandler("Error: No value specified",400); }
 
                         //Get propertyType
                         var q = `SELECT ?propTypeURI WHERE { GRAPH <${graphURI}> {?s ?propTypeURI <${propertyURI}>} }`;
                         console.log("Querying database to get property type:\n"+q);
                         let dbConn = new StardogConn(db);
-                        dbConn.getQuery({query: q});
+                        dbConn.getQuery({query: q, accept: 'application/n-triples'});
                         return rp(dbConn.options)
                             .then(res => {
                                 if(res && res.results.bindings){
@@ -197,21 +179,18 @@ export class PropertyModel extends BaseModel {
                             })
                             .then(d => {
                                 //Define input
-                                var input: IProp = {
+                                var input: PutProp = {
                                     propertyURI: propertyURI,
                                     prefixes: [{prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}],
                                     value: {
-                                        value: valueObj.value,
+                                        value: value,
                                         datatype: "cdt:ucum"
                                     }
                                 };
-                                if(valueObj.unit){
-                                    input.value.unit = valueObj.unit;
-                                };
                                 
                                 //Generate query
-                                var sp = new OPMProp(input);
-                                var q = sp.putProp();
+                                var sp = new OPMProp();
+                                var q = sp.putProp(input);
 
                                 //Run query
                                 console.log("Querying database to get new property state triples:\n"+q);
@@ -219,26 +198,36 @@ export class PropertyModel extends BaseModel {
                                 dbConn.getQuery({query: q, accept: 'application/n-triples'});
 
                                 //Return result
-                                return rp(dbConn.options)
-                                    .then(d => {
-                                        //No results means that the property is already defined
-                                        if(!d){ this.errorHandler("Error: Is the specified value the same as the previous value?",400) }
-                                        
-                                        //Store created triples
-                                        ntriples = d;
-
-                                        //Write new property to datastore
-                                        var errorMsg = "Could not create property";
-                                        return this.writeTriples(d, graphURI, db, errorMsg);
-                                    })
-                                    .then(d => {
-                                        //Parse n-triples to JSON-LD
-                                        var promises = jsonld.promises;
-                                        return promises.fromRDF(ntriples, {format: 'application/nquads'});
-                                    });
+                                return rp(dbConn.options);
                             })
                     }
                 })
+                .then(d => {
+                    //No results means that the property is already defined
+                    if(!d){
+                        if(restore){
+                            this.errorHandler("Error: Could not restore the property",500);
+                        }else if(setReliability && setReliability == 'confirmed'){
+                            this.errorHandler("Error: Could not confirm the property. Is the property deleted? Is it already confirmed? Is it a derived property? These are automatically confirmed when all arguments are confirmed.", 400);
+                        }else if(setReliability && setReliability == 'assumption'){          
+                            this.errorHandler("Error: Could not set the property as assumption. Is the property deleted? Is it confirmed? Is it already an assumption? Is it a derived property? These are automatically set as assumptions when all arguments are assumptions.", 400);
+                        }else{
+                            this.errorHandler("Error: Is the specified value the same as the previous value?",400)
+                        }
+                    }                        
+                    
+                    //Store created triples
+                    ntriples = d;
+
+                    //Write new property to datastore
+                    var errorMsg = "Could not write property update to triplestore";
+                    return this.writeTriples(d, graphURI, db, errorMsg);
+                })
+                .then(d => {
+                    //Parse n-triples to JSON-LD
+                    var promises = jsonld.promises;
+                    return promises.fromRDF(ntriples, {format: 'application/nquads'});
+                });
     }
 
     getProperty(req: Request){
@@ -253,19 +242,23 @@ export class PropertyModel extends BaseModel {
         var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
 
         //Define input
-        var input: IProp = { propertyURI: propertyURI, latest: getLatest };
+        var input: GetProp = { propertyURI: propertyURI, latest: getLatest };
         if(accept == 'application/json'){input.queryType = 'select';}
 
         return this.checkIfResourceExists(db,propertyURI)
                 .then(d => {
                     //Return property data
-                    let sp = new OPMProp(input);
-                    const q = sp.getProp();
+                    let sp = new OPMProp();
+                    const q = sp.getProps(input);
                     console.log("Querying database to get property data:\n"+q);
                     let dbConn = new StardogConn(db);
                     dbConn.getQuery({query: q, accept: accept});
                     return rp(dbConn.options);
                 })
+                .then(d => {
+                    if(accept != 'application/ld+json'){ return d; }
+                    return this.compactJSONLD(d);
+                });
     }
 
     listSubscribers(req: Request){
@@ -280,7 +273,7 @@ export class PropertyModel extends BaseModel {
         var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
 
         //Define input
-        var input: IProp = {propertyURI: propertyURI}
+        var input: any = {propertyURI: propertyURI}
         if(accept == 'application/json'){input.queryType = 'select';}
 
         let sp = new OPMProp(input);
@@ -299,11 +292,12 @@ export class PropertyModel extends BaseModel {
 
         //Query parameters
         var restriction: string = req.query.restriction;
+        var latest: boolean = req.query.latest == 'true' ? true : false;
 
-        //Define arguments for getFoIProps()
-        var args: IProp = {latest: true};
-        args.queryType = (accept == 'application/json') ? 'select' : 'construct';
+        //Define arguments for getProps()
+        var args: any = (accept == 'application/json') ? {queryType: 'select'} : {queryType: 'construct'};
         //Restrictions
+        if(latest){ args.latest = latest };
         if(restriction){
             var options = this.restrictions;
             if(options.indexOf(restriction) == -1){this.errorHandler("Error: Unknown restriction. Use either "+_s.toSentence(options, ', ', ' or '), 400)};
@@ -311,11 +305,11 @@ export class PropertyModel extends BaseModel {
         };
         
         if(restriction == 'outdated'){
-            let sp = new OPMCalc;
+            let sp = new OPMProp;
             var q = sp.listOutdated(args);
         }else{
-            let sp = new OPMProp(args);
-            var q = sp.getFoIProps();
+            let sp = new OPMProp();
+            var q = sp.getProps(args);
         }
 
         console.log("Querying database to list properties:\n"+q);
@@ -324,7 +318,11 @@ export class PropertyModel extends BaseModel {
         }
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query: q, accept: accept});
-        return rp(dbConn.options);
+        return rp(dbConn.options)
+                .then(d => {
+                    if(accept != 'application/ld+json'){ return d; }
+                    return this.compactJSONLD(d);
+                })
     }
 
     /**

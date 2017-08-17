@@ -183,54 +183,49 @@ export class BaseModel {
                 })
     }
 
-    convertToJSONLD(ntriples){
-        //Parse n-triples to JSON-LD
+    compactJSONLD(data){
+        //See what @types are defined in the data
+        var types: string[] = [];
+        var used: string[] = _.chain(data)
+                .map(obj => {
+                    var keys = _.keys(obj);
+                    //General types
+                    types = types.concat(obj['@type']);
+                    types = types.concat(keys);
+                    //Literal datatypes
+                    _.each(keys, key => {
+                        _.each(obj[key], item => {
+                            if(item['@type']){ types.push(item['@type']); }
+                        })
+                    });
+                    return types;
+                }).flatten().reject(item => {
+                    return _s.startsWith(item, '@');
+                })
+                .map(item => {
+                    if(_s.contains(item, '#')){
+                        return _s.strLeftBack(item, '#')+'#';
+                    }else if(_s.contains(item, '/')){
+                        return _s.strLeftBack(item, '/')+'/';
+                    }
+                    return item;
+                })
+                .uniq().value();
+
+        //Filter context array
+        var ctxt = _.filter(context, item => {
+            return _.contains(used, item['uri']);
+        });
+
+        //Write context object
+        var c = {};
+        _.each(ctxt, item => {{
+            c[item['prefix']] = item['uri'];
+        }})
+
+        //Do compaction according to context file
         var promises = jsonld.promises;
-        return promises.fromRDF(ntriples, {format: 'application/nquads'})
-                        .then(d => {
-                            //See what @types are defined in the data
-                            var types: string[] = [];
-                            var used: string[] = _.chain(d)
-                            .map(obj => {
-                                var keys = _.keys(obj);
-                                //General types
-                                types = types.concat(obj['@type']);
-                                types = types.concat(keys);
-                                //Literal datatypes
-                                _.each(keys, key => {
-                                    _.each(obj[key], item => {
-                                        if(item['@type']){ types.push(item['@type']); }
-                                    })
-                                });
-                                return types;
-                            }).flatten().reject(item => {
-                                return _s.startsWith(item, '@');
-                            })
-                            .map(item => {
-                                if(_s.contains(item, '#')){
-                                    return _s.strLeftBack(item, '#')+'#';
-                                }else if(_s.contains(item, '/')){
-                                    return _s.strLeftBack(item, '/')+'/';
-                                }
-                                return item;
-                            })
-                            .uniq().value();
-
-                            //Filter context array
-                            var ctxt = _.filter(context, item => {
-                                return _.contains(used, item['uri']);
-                            });
-
-                            //Write context object
-                            var c = {};
-                            _.each(ctxt, item => {{
-                                c[item['prefix']] = item['uri'];
-                            }})
-
-                            //Do compaction according to context file
-                            var promises = jsonld.promises;
-                            return promises.compact(d, c);
-                        });
+        return promises.compact(data, c);
     }
 
     /**

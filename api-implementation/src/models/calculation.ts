@@ -7,6 +7,8 @@ import * as _ from "underscore";
 import * as _s from "underscore.string";
 import * as N3 from "n3";
 import { OPMCalc, ICalc } from "opm-query-generator";
+//Interfaces
+import { GetCalc } from "opm-query-generator";
 import * as jsonld from 'jsonld';
 
 //Models
@@ -32,7 +34,56 @@ export class CalculationModel extends BaseModel {
         console.log("Querying database to list calculations:\n"+q);
         let dbConn = new StardogConn(db);
         dbConn.getQuery({query: q, accept: accept});
-        return rp(dbConn.options);
+        return rp(dbConn.options)
+            .then(d => {
+                if(accept != 'application/ld+json'){ return d; }
+                return this.compactJSONLD(d);
+            });
+    }
+
+    //Update all calculations
+    putCalculations(req: Request){
+        const db:string = req.params.db;
+        const graphURI = "https://localhost/opm/HVAC-I";
+
+        //Step 1 - infer outdated classes
+        var args = {graphURI: graphURI};
+        let sc = new OPMCalc;
+        const q = sc.putOutdated(args);
+        console.log("Querying database to get outdated properties:\n"+q);
+        let dbConn = new StardogConn(db);
+        dbConn.getQuery({query: q, accept: 'application/n-triples'});
+        return rp(dbConn.options)
+                .then(d => {
+                    if(!d){ return "No triples to infer"; }
+                    var errorMsg = "Problem writing data about outdated states to store";
+                    this.writeTriples(d, graphURI, db, errorMsg);
+                    return "Successfully wrote triples to store";
+                })
+    }
+
+    getCalculation(req: Request){
+        const db:string = req.params.db;
+        const host: string = req.headers.host.split(':')[0];
+        const hostURI: string = `https://${host}/${db}`;
+        const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+        var args: GetCalc = {calculationURI: calculationURI};
+        args.queryType = (accept == 'application/json') ? 'select' : 'construct';
+
+        //Construct query
+        let sc = new OPMCalc;
+        const q = sc.getCalcData(args);
+        console.log("Querying database to get calculation data:\n"+q);
+        let dbConn = new StardogConn(db);
+        dbConn.getQuery({query: q, accept: accept});
+        return rp(dbConn.options)
+            .then(d => {
+                if(accept != 'application/ld+json'){ return d; }
+                return this.compactJSONLD(d);
+            });
     }
 
     createCalculation(req: Request): any{
@@ -63,29 +114,33 @@ export class CalculationModel extends BaseModel {
         dbConn.getQuery({query: q, accept: 'application/n-triples'});
         return rp(dbConn.options)
                     .then(d => {
-                        if(d){
-                            //Store created triples
-                            ntriples = d;
+                        if(!d){ this.errorHandler("Error: Could not create new calculation",500) }
+                        //Store created triples
+                        ntriples = d;
 
-                            //Write new property to datastore
-                            var errorMsg = "Could not create calculation";
-                            this.writeTriples(d, graphURI, db, errorMsg);
-                        }else{ this.errorHandler("Error: Could not create new calculation",500) }
+                        //Write new property to datastore
+                        var errorMsg = "Could not create calculation";
+                        this.writeTriples(d, graphURI, db, errorMsg);
                     })
                     .then(d => {
-                        return this.convertToJSONLD(ntriples);
+                        var promises = jsonld.promises;
+                        return promises.fromRDF(ntriples, {format: 'application/nquads'})
+                                .then(d => {
+                                    return this.compactJSONLD(d);
+                                });
                     });
     }
 
-    //Assign calculation in all situations where the specified criteria are met.
+    //Attach calculation in all situations where the specified criteria are met.
     //Only for new instances
-    reAssignCalculation(req: Request): any{
+    attachCalculation(req: Request): any{
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
         const hostURI: string = `https://${host}/${db}`;
         const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
 
         var ntriples: string;
+        var graphURI: string;
 
         //Get calculation data
         var args: ICalc = {calculationURI: calculationURI, queryType: 'construct'};
@@ -96,7 +151,11 @@ export class CalculationModel extends BaseModel {
         dbConn.getQuery({query: q, accept: 'application/n-triples'});
         return rp(dbConn.options)
                 .then(d => {
-                    return this.convertToJSONLD(d);
+                    var promises = jsonld.promises;
+                    return promises.fromRDF(d, {format: 'application/nquads'})
+                            .then(d => {
+                                return this.compactJSONLD(d);
+                            });
                 })
                 .then(d => {
                     //Map prefixes
@@ -114,6 +173,9 @@ export class CalculationModel extends BaseModel {
                         unit: {value: d["opm:unit"]["@value"], datatype: d["opm:unit"]["@type"]},
                         prefixes: prefixes
                     }
+                    //Store graph URI
+                    graphURI = d["sd:namedGraph"]["@id"];
+
                     //Generate query
                     let sc = new OPMCalc;
                     const q = sc.postCalc(input);
@@ -123,12 +185,20 @@ export class CalculationModel extends BaseModel {
                     return rp(dbConn.options);
                 })
                 .then(d => {
+                    if(!d){ return "The calculation was not attached to any new resources - calculation already up to date."; }
+                    //Store created triples
                     ntriples = d;
-                    //NEXT: WRITE TO DB
-                    return d;
-                })
-                .then(d => {
-                    return this.convertToJSONLD(ntriples);
+
+                    //Write new property to datastore
+                    var errorMsg = "Could not attach calculation to FoIs";
+                    return this.writeTriples(d, graphURI+'-I', db, errorMsg)
+                        .then(d => {
+                            var promises = jsonld.promises;
+                            return promises.fromRDF(ntriples, {format: 'application/nquads'})
+                                    .then(d => {
+                                        return this.compactJSONLD(d);
+                                    });
+                        });
                 });
     }
 
@@ -138,63 +208,70 @@ export class CalculationModel extends BaseModel {
     reRunCalculation(req: Request): any{
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
+        const hostURI: string = `https://${host}/${db}`;
         const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
 
-        return new Promise ((resolve, reject) => resolve("PUT calculation for "+calculationURI));
+        var ntriples: string;
+        var graphURI: string;
+
+        //Get calculation data
+        var args: ICalc = {calculationURI: calculationURI, queryType: 'construct'};
+        let sc = new OPMCalc;
+        const q = sc.getCalcData(args);
+        console.log("Querying database to get calculation data:\n"+q);
+        let dbConn = new StardogConn(db);
+        dbConn.getQuery({query: q, accept: 'application/n-triples'});
+        return rp(dbConn.options)
+                .then(d => {
+                    var promises = jsonld.promises;
+                    return promises.fromRDF(d, {format: 'application/nquads'})
+                            .then(d => {
+                                return this.compactJSONLD(d);
+                            });
+                })
+                .then(d => {
+                    //Map prefixes
+                    var prefixes = [];
+                    _.each(d["@context"], (value, key) => {
+                        prefixes.push({prefix: key, uri: value});
+                        return;
+                    });
+                    //Define input for calculation
+                    var input = {
+                        calculationURI: calculationURI,
+                        expression: d["opm:expression"],
+                        inferredProperty: d["opm:inferredProperty"]["@id"],
+                        argumentPaths: d["opm:argumentPaths"]["@list"],
+                        unit: {value: d["opm:unit"]["@value"], datatype: d["opm:unit"]["@type"]},
+                        prefixes: prefixes
+                    }
+                    //Store graph URI
+                    graphURI = d["sd:namedGraph"]["@id"];
+
+                    //Generate query
+                    let sc = new OPMCalc;
+                    const q = sc.putCalc(input);
+                    console.log("Querying database to update calculated properties:\n"+q);
+                    let dbConn = new StardogConn(db);
+                    dbConn.getQuery({query: q, accept: 'application/n-triples'});
+                    return rp(dbConn.options);
+                })
+                .then(d => {
+                    if(!d){ return "No new calculation results were inferred - calculation already up to date."; }
+                    //Store created triples
+                    ntriples = d;
+
+                    //Write new property to datastore
+                    var errorMsg = "Could not update calculation.";
+                    return this.writeTriples(d, graphURI+'-I', db, errorMsg)
+                        .then(d => {
+                            var promises = jsonld.promises;
+                            return promises.fromRDF(ntriples, {format: 'application/nquads'})
+                                    .then(d => {
+                                        return this.compactJSONLD(d);
+                                    });
+                        });
+                });
     }
-
-    // //Get properties and their latest evaluations
-    // createCalculation(req: Request): any{
-    //     //Create resource
-    //     const db:string = req.params.db;
-    //     const host: string = req.headers.host.split(':')[0];
-
-    //     //Get property
-    //     const property = req.query.property;
-    //     if(property){
-    //         switch(property) {
-    //             case "fluidTemperatureDifference":
-    //                 var graphURI = `https://${host}/${db}/HVAC-I`;
-    //                 var input: ICalc = {
-    //                         args: [
-    //                             { property: 'seas:fluidSupplyTemperature' },
-    //                             { property: 'seas:fluidReturnTemperature' }
-    //                         ],
-    //                         result: {
-    //                             unit: 'Cel',
-    //                             datatype: 'cdt:ucum',
-    //                             property: 'seas:fluidTemperatureDifference',
-    //                             calc: 'abs(?arg1-?arg2)'
-    //                         },
-    //                         prefixes: [
-    //                             {prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}
-    //                         ]
-    //                     };
-
-    //                 let sc = new OPMCalc(input);
-    //                 const q = sc.postCalc();
-    //                 console.log("Querying database to infer new derived values:\n"+q);
-    //                 let dbConn = new StardogConn(db);
-    //                 dbConn.getQuery({query: q, accept: 'application/n-triples'});
-    //                 return rp(dbConn.options)
-    //                         .then(d => {
-    //                             if(!d){ this.errorHandler("All calculated values are up to date",200) };
-    //                             //Isert the triples in the named graph
-    //                             var q: string = `INSERT DATA {
-    //                                              GRAPH <${graphURI}> { ${d} }}`;
-
-    //                             let dbConn = new StardogConn(db);
-    //                             dbConn.updateQuery({query:q});
-
-    //                             console.log("Querying database: "+q);
-    //                             return rp(dbConn.options)
-    //                         });
-    //             default:
-    //                 return new Promise ((resolve, reject) => resolve("Unknown property"));
-    //         }
-    //     }else{
-    //         return new Promise ((resolve, reject) => resolve("Please specify a property"));
-    //     }
-    // }
     
 }

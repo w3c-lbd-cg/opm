@@ -4,7 +4,7 @@ import * as _ from 'underscore';
 import * as _s from 'underscore.string';
 import * as jsonld from 'jsonld';
 var errors = require('request-promise/errors');
-import { OPMProp, IProp } from "opm-query-generator";
+import { OPMProp } from "opm-query-generator";
 import { StardogConn } from "./../helpers/stardog-connection";
 
 //Models
@@ -24,13 +24,14 @@ import { FoIQueries } from "./../queries/foi";
 import { C } from "./../queries/foi";
 import { RUD } from "./../queries/foi";
 import { GetByType } from "./../queries/foi";
+import { PostPutFoIProp, GetProp } from "opm-query-generator";
 
 //Lists
 var validProperties = require('./../../public/lists/valid-properties.json');
 
 export class FoIModel extends BaseModel {
 
-    private restrictions: string[] = ['deleted', 'assumptions', 'derived', 'confirmed'];
+    private restrictions: string[] = ['deleted', 'assumptions', 'derived', 'confirmed', 'outdated'];
     private reliabilities: string[] = ['assumption', 'confirmed'];
 
     /**
@@ -227,7 +228,7 @@ export class FoIModel extends BaseModel {
         var restriction: string = req.query.restriction;
 
         //Set arguments for get query
-        var args: IProp = { foiURI: foiURI, language: language };
+        var args: GetProp = { foiURI: foiURI, language: language };
 
         args.queryType = (accept == 'application/json') ? 'select' : 'construct';
         if(latest){ args.latest = latest };                 //Return only latest?
@@ -244,12 +245,21 @@ export class FoIModel extends BaseModel {
                     return this.checkIfResourceDeleted(db,foiURI);
                 })
                 .then(d => {
-                    let sp = new OPMProp(args);
-                    const q = sp.getFoIProps();
+                    if(restriction == 'outdated'){
+                        let sp = new OPMProp;
+                        var q = sp.listOutdated(args);
+                    }else{
+                        let sp = new OPMProp();
+                        var q = sp.getProps(args);
+                    }
                     console.log("Querying database for FoI properties: "+q);
                     let dbConn = new StardogConn(db);
                     dbConn.getQuery({query: q, accept: accept});
                     return rp(dbConn.options)
+                })
+                .then(d => {
+                    if(accept != 'application/ld+json'){ return d; }
+                    return this.compactJSONLD(d);
                 });
     }
 
@@ -264,7 +274,6 @@ export class FoIModel extends BaseModel {
 
         //Body
         var value = req.body.value; //Clean
-        var valueObj = this.separateValueUnit(value);
         const reliability: string = req.body.reliability;   //Optional: How reliable is the property?
         const comment: string = req.body.comment;           //Optional: Property description?
 
@@ -289,17 +298,14 @@ export class FoIModel extends BaseModel {
                 })
                 .then(d => {
                     //Define input
-                    var input: IProp = {
+                    var input: PostPutFoIProp = {
                         foiURI: foiURI,
-                        prefixes: [{prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}],
+                        inferredProperty: propertyTypeURI,
                         value: {
-                            value: valueObj.value,
-                            datatype: "cdt:ucum",
-                            property: propertyTypeURI
-                        }
-                    };
-                    if(valueObj.unit){
-                        input.value.unit = valueObj.unit;
+                            value: value,
+                            datatype: "cdt:ucum"
+                        },
+                        prefixes: [{prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'}],
                     };
                     if(reliability){
                         var options = this.reliabilities;
@@ -310,8 +316,8 @@ export class FoIModel extends BaseModel {
                     }
                     
                     //Generate query
-                    var sp = new OPMProp(input);
-                    var q = sp.postFoIProp();
+                    var sp = new OPMProp();
+                    var q = sp.postFoIProp(input);
 
                     //Run query
                     console.log("Querying database to get new FoI triples:\n"+q);

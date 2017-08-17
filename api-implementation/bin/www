@@ -19,7 +19,9 @@ app.set("port", httpPort);
 var httpsServer = https.createServer({
       key: fs.readFileSync('key.pem'),
       cert: fs.readFileSync('cert.pem'),
-      passphrase: pp
+      passphrase: pp,
+      requestCert: false,
+      rejectUnauthorized: false
     },app);
 
 //listen on provided ports
