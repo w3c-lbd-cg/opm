@@ -19,7 +19,7 @@
 @prefix dbo:    <http://dbpedia.org/ontology/> .
 @prefix seas:   <http://w3id.org/seas/> .
 
-@prefix opm <https://w3id.org/opm#> .
+@prefix opm: <https://w3id.org/opm#> .
 @base <https://w3id.org/product#> .
 
 voaf:Vocabulary a owl:Class .
@@ -57,7 +57,7 @@ foaf:name a owl:DatatypeProperty .
     vann:preferredNamespaceUri <https://w3id.org/opm#> ;
     dce:Language "en" ;
     dce:title "OPM" ;
-    dce:description "Ontology for Property Management" ;
+    dce:description "Ontology for Property Management" .
 
 #################################
 # CLASSES
@@ -66,7 +66,7 @@ opm:Property
         a owl:ObjectProperty ;
         rdfs:label      "Property"@en ,
                         "Egenskab"@da ;
-        rdfs:subClassOf seas:Property .
+        owl:sameAs      seas:Property .
 
 opm:State
         a owl:ObjectProperty ;
@@ -79,6 +79,35 @@ Calculated properties are also stored as states as these change when an expressi
 Metadata skal som minimum bestå af oprettelsestidspunktet givet ved prov:generatedAtTime, men helst også af en prov:wasAttributedTo reference til den agent som oprettede tilstanden.
 Beregnede egenskaber lagres også som tilstande da disse ændres når en beregningsparameter ændres. Beregninger skal have en opm:expression og en prov:wasDerivedFrom tilknyttet. prov:wasDerivedFrom lagres som en rdf:Seq, som peger på egenskabstilstandene som blev brugt til beregningen."""@da ; 
         rdfs:subClassOf seas:Evaluation .
+
+opm:Calculation
+        a owl:ObjectProperty ;
+        rdfs:label      "Calculation"@en ,
+                        "Beregning"@da ;
+        rdfs:comment    """A calculation holds the necessary information to infer derived properties."""@en ,
+                        """En beregning indeholder den nødvendige information til at inferere en afledt egenskab."""@da .
+
+opm:Assumption
+        a owl:ObjectProperty ;
+        rdfs:label      "Assumption"@en ,
+                        "Antagelse"@da ;
+        rdfs:comment    "An assumption is an unconfirmed property. Assumptions enable designers to move on with the design knowing that the assumed property might change as the project progresses."@en ,
+                        "En antagelse er en ikke-bekræftet egenskab. Antagelser gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da .
+
+opm:Deleted
+        a owl:ObjectProperty ;
+        rdfs:label      "Deleted"@en ,
+                        "Slettet"@da ;
+        rdfs:comment    "A deleted property is a property that is no longer part of the design. The class enables a user to delete a property without removing it from the dataset."@en ,
+                        "En slettet egenskab er en egenskab, som ikke længere er en del af designet. Klassen gør det muligt for en bruger at slette en egenskab uden den slettes fra datasættet."@da .
+
+opm:Confirmed
+        a owl:ObjectProperty ;
+        rdfs:label      "Confirmed"@en ,
+                        "Bekræftet"@da ;
+        rdfs:comment    "A confirmed property is a property that has been validated by an agent who is authorized to do so. A confirmed property should not be changed."@en ,
+                        "En bekræftet egenskab er en egenskab, der er blevet valideret af en agent, som har autoritet dertil. En bekræftet egenskab bør ikke ændres."@da .
+
 
 #################################
 # OBJECT PROPERTIES
@@ -102,46 +131,48 @@ opm:documentation
                         "Relation mellem en bekræftet tilstand og en fil, som indeholder dokumentation. Dette kunne være enten en mail, en skannet dokument eller en digital signatur."@da ;
         rdfs:domain     opm:State .
 
+opm:argumentPaths
+        a owl:ObjectProperty ;
+        rdfs:label      "arument paths"@en ,
+                        "argument-stier"@da ;
+        rdfs:comment    """Relationship between a calculation and a list (RDF collection) of argument paths. An argument path is given in triples and indicates the relationship between the Feature of Interest (FoI) to which the inferred property will be applied and a FoI on which the argument property exists. 
+If the argument exists on the FoI itself it can be referred by ```?foi xx:argProperty ?arg1```. The path can be any length, and another example could be an argument existing on the super-system of a FoI: ```?foi xx:subSystemOf/xx:argProperty ?arg1```."""@en ,
+                        """Relation mellem en beregning og en liste (RDF collection) med argument-stier. En argument-sti angives i 'triples' og indikerer relationen mellem den Feature of Interest (FoI) til hvilken den udledte egenskab skal tilknyttes og den FoI, som indeholder argumentets egenskab.
+Hvis argumentet eksisterer på FoI'en selv kan denne refereres ved ```?foi xx:argProperty ?arg1```. Stien kan være enhver længde, og et andet eksempel kunne være et argument, som eksisterer på oversystemet af en FoI: ```?foi xx:subSystemOf/xx:argProperty ?arg1```."""@da ;
+        rdfs:domain     opm:Calculation .
+
+opm:inferredProperty
+        a owl:ObjectProperty ;
+        rdfs:label      "inferred property"@en ,
+                        "udledt egenskab"@da ;
+        rdfs:comment    "Relationship between a calculation and the property kind it will infer."@en ,
+                        "relation mellem en beregning og den egenskabstype denne vil udlede."@da ;
+        rdfs:domain     opm:Calculation ;
+        rdfs:range      opm:Property .
+
 #################################
 # DATATYPE PROPERTIES
 #################################
-opm:deleted
-        a owl:DatatypeProperty ;
-        rdfs:label      "deleted"@en ,
-                        "slettet"@da ;
-        rdfs:comment    "The deleted property is true if a property is deleted. The property enables a user to delete a property without removing it from the dataset."@en ,
-                        "Slettet-egenskaben er sand hvis egenskaben er slettet. Egenskaben gør det muligt for en bruger at slette en egenskab uden den slettes fra datasættet"@da ;
-        rdfs:domain opm:Property ;
-        rdfs:range xsd:Boolean .
-
-opm:assumption
-        a owl:DatatypeProperty ;
-        rdfs:label      "assumption"@en ,
-                        "antagelse"@da ;
-        rdfs:comment    "The assumption property is true if a property is an assumption ie. not confirmed. The property enables the designers to move on knowing that the assumed property might change as the project progresses."@en ,
-                        "Antagelses-egenskaben er sand hvis en egenskab er en antagelse ie. ikke bekræftet. Egenskaben gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da ;
-        rdfs:domain opm:Property ;
-        rdfs:range xsd:Boolean .
-
-opm:confirmed
-        a owl:DatatypeProperty ;
-        rdfs:label      "confirmed"@en ,
-                        "bekræftet"@da .
-        rdfs:domain opm:Property ;
-        rdfs:range xsd:Boolean .
-
 opm:valueAtState
         a owl:DatatypeProperty ;
         rdfs:label      "value at state"@en ,
-                        "værdi ved tilstand"@da .
+                        "værdi ved tilstand"@da ;
         rdfs:comment    "Points to a literal with the value of the property at the given state."@en ,
                         "Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
-        rdfs:domain opm:State .
+        rdfs:domain     opm:State .
 
 opm:expression
         a owl:DatatypeProperty ;
         rdfs:label      "expression"@en ,
-                        "udtryk"@da .
-        rdfs:comment    "Points to a literal with the expression. Arguments of the expression are given as ?arg1, ?arg2, ..., ?argn in the order specified in prov:wasDerivedFrom."@en ,
-                        "Peger på en tekststreng med et matematisk udtryk. Argumenter i udtrykket er givet ved ?arg1, ?arg2, ..., ?argn i den rækkefølge de er specificeret i prov:wasDerivedFrom."@da ;
-        rdfs:domain opm:State .
+                        "udtryk"@da ;
+        rdfs:comment    "Points to a literal containing the expression to execute with a calculation. Arguments of the expression are defined with vaiables (ie. ?arg1) corresponding to ones used in the argument paths."@en ,
+                        "Peger på en tekststreng, som indeholder det (matematiske) udtryk, som skal eksekveres med en beregning. Argumenter i udtrykket er givet ved variabler (fx ?arg1), som svarer til dem der benyttes i argument-stierne."@da ;
+        rdfs:domain     opm:Calculation .
+
+opm:unit
+        a owl:DatatypeProperty ;
+        rdfs:label      "unit"@en ,
+                        "enhed"@da ;
+        rdfs:comment    "Points to a literal containing the unit of the inferred property. The unit is applied as a concatenation with the calculation result. If the result is 40 and the unit is '°C'^^cdt:temperature the result will be inferred as '40 °C'^^cdt:temperature."@en ,
+                        "Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
+        rdfs:domain     opm:Calculation .
