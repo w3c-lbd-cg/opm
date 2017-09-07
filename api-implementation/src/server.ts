@@ -14,6 +14,7 @@ import { CorsConfig } from './config/cors';
 
 //Routes
 import { AdminRoute } from "./routes/admin";
+import { ProjectRoute } from "./routes/project";
 import { PropertyRoute } from "./routes/property";
 import { FoIRoute } from "./routes/feature-of-interest";
 import { CalculationRoute } from "./routes/calculation";
@@ -133,15 +134,18 @@ export class Server {
 
     //use cors middleware
     router.use(cors(options));
-    
+
+    //AdminRoute
+    AdminRoute.create(router);
+  
+    //Project Route
+    ProjectRoute.create(router);
+
     //Property Route
     PropertyRoute.create(router);
 
     //Calculation Route
     CalculationRoute.create(router);
-
-    //AdminRoute
-    AdminRoute.create(router);
 
     //Feature of Interest Route
     //Must be loaded in last as /:db/:foi should come after /:db/Properties and /:db/Calculations

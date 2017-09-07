@@ -12,54 +12,29 @@ import { BaseModel } from "./model";
 
 //Helper functions
 import { UriFunctions } from "./../helpers/uri-functions";
+import { GeneralQueries } from "./../queries/general";
 
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
 
+//Lists
+var defaultNamespaces: NS[] = require('./../../public/lists/default-namespaces.json');
+
+//Interfaces
 import { ICalc } from "./../interfaces/calculation";
+export interface NS {
+    prefix: string;
+    uri: string;
+}
 
 export class AdminModel extends BaseModel {
 
     /**
-     * PROJECTS
-     * @method listDBs()    List databases (projects)
-     * @method addDB()      Add database (project)
-     * @method deleteDB()   Remove database (project)
+     * DATABASE
      * @method wipeDB()     Wipe either the whole db or a named graph in the db
      */
 
-    //List projects
-    listDBs(req: Request){
-        let dbConn = new StardogConn();
-        dbConn.getDatabases();
-        return rp(dbConn.options);
-    }
-    //Add project
-    addDB(req: Request){
-        const dbname: string = req.body.dbname;
-        if(!dbname){
-            errors.error = "Please specify a dbname";
-            errors.statusCode = 404;
-            throw errors;
-        }
-        const cmd: string = `stardog-admin --server ${DbConfig.stardog.host}:${DbConfig.stardog.port} db create -n ${dbname} -u ${DbConfig.stardog.username} -p ${DbConfig.stardog.password}`;
-        console.log(cmd);
-        return this.executeCmd(cmd);
-
-        // CURRENTLY NOT WORKING
-        // let dbConn = new StardogConn();
-        // dbConn.addDatabase({dbname: dbname, options: {}});
-        // console.log(dbConn.options);
-        // return rp(dbConn.options);
-    }
-    //Delete project
-    deleteDB(req: Request){
-        const dbname: string = req.params.name;
-        const cmd: string = `stardog-admin --server ${DbConfig.stardog.host}:${DbConfig.stardog.port} db drop ${dbname} -u ${DbConfig.stardog.username} -p ${DbConfig.stardog.password}`;
-        console.log(cmd);
-        return this.executeCmd(cmd);
-    }
     //Wipe database
     wipeDB(req: Request){
         //Define constants
@@ -144,7 +119,7 @@ export class AdminModel extends BaseModel {
                 //Delete named graph
                 const cmd: string = `stardog data remove ${DbConfig.stardog.host}:${DbConfig.stardog.port}/${db}  --named-graph ${named_graph_uri} -u ${DbConfig.stardog.username} -p ${DbConfig.stardog.password}`;
                 console.log(cmd);
-                return this.executeCmd(cmd)
+                return this.executeCmd(cmd);
             })
             .then(d => {
                 //Attach external ontology
@@ -304,11 +279,12 @@ export class AdminModel extends BaseModel {
     //Namespace list
     getNamespaces(req: Request){
         const db: string = req.params.db;
-        let dbConn = new StardogConn(db);
-        dbConn.getNamespaces();
+        let dbConn = new StardogConn();
+        dbConn.getNamespaces(db);
         console.log(dbConn.options);
         return rp(dbConn.options)
             .then(d => {
+                console.log(d);
                 var res: any[] = JSON.parse(d.replace("database.namespaces", "ns")).ns;
                 if(res){
                     return _.map(res, x => {

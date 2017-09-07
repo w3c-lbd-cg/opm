@@ -36,14 +36,6 @@ import { RUD } from "./../queries/foi";
 import { GetByType } from "./../queries/foi";
 
 export class BaseModel {
-
-    //Error handler
-    errorHandler(msg,code){
-        console.log("Error code "+code+": "+msg);
-        errors.error = msg;
-        errors.statusCode = code;
-        throw errors;
-    }
        
     wipeAll(db,graphURI?){
         if(graphURI){
@@ -161,9 +153,13 @@ export class BaseModel {
     
     executeCmd(cmd): any{
         console.log("Executing command: "+cmd);
-        return _exec(cmd).then(result => {
-            if(result.stderr){ this.errorHandler(result.stderr,500) }
-            return result.stdout;
+        return _exec(cmd).then(res => {
+            if(res.stderr) return this.errorHandler(res.stderr,500);
+            return res.stdout;
+        }, err => {
+            if(err.stdout.match("Database already exists")) return this.errorHandler(err.stdout,409);
+            if(err.stdout.match("Invalid name")) return this.errorHandler(err.stdout,400);
+            return this.errorHandler(err.stdout,500)
         });
     }
 
@@ -315,6 +311,14 @@ export class BaseModel {
                 })
                 .first()
                 .value();
+    }
+
+    //Error handler
+    public errorHandler(msg,code){
+        console.log("Error code "+code+": "+msg);
+        errors.error = msg;
+        errors.status = code;
+        throw errors;
     }
 
 }

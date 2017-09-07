@@ -64,9 +64,9 @@ export class StardogConn implements rp.RequestPromiseOptions {
         this.options.uri += 'admin/databases/'+db;
     }
 
-    getNamespaces(){
+    getNamespaces(db){
         this.options.method = 'PUT';
-        this.options.uri += 'admin/databases/'+this.db+'/options';
+        this.options.uri += 'admin/databases/'+db+'/options';
         this.options.headers = {
             'Content-type': 'application/json' 
         };

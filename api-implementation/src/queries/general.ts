@@ -21,6 +21,45 @@ export class GeneralQueries {
         return `INSERT DATA {GRAPH <${graphURI}> {<${subjectURI}> <${predicateURI}> <${objectURI}>}}`;
     }
 
+    addProjectData(uri, name, description?): string {
+        var q = '';
+        q+= 'PREFIX doap: <http://usefulinc.com/ns/doap#>\n';
+        q+= 'INSERT {\n';
+        q+= `\t<${uri}> a foaf:Project , prov:Entity , doap:Project ;\n`;
+        q+= `\t\trdfs:label "${name}" ;\n`;
+        q+= `\t\tdoap:name "${name}" ;\n`;
+        q+= `\t\tdoap:created ?now .\n`;
+        if(description){
+            q+= `\t<${uri}> rdfs:comment "${description}" ;\n`;
+            q+= `\t\tdoap:description "${description}" ;\n`;
+        }
+        q+= '} WHERE {\n';
+        q+= '\tBIND(now() AS ?now)\n';
+        q+= '}';
+        return q;
+    }
+
+    getProjectData(): string {
+        var q = '';
+        q+= 'PREFIX doap: <http://usefulinc.com/ns/doap#>\n';
+        q+= 'PREFIX rvt:  <http://example.org/rvt#>\n';
+        q+= 'CONSTRUCT {\n';
+        q+= '\t?proj a ?class ;\n';
+        q+= '\t\tdoap:name ?name ;\n';
+        q+= '\t\tdoap:created ?created ;\n';
+        q+= '\t\tdoap:description ?description ;\n';
+        q+= '\t\trvt:bucketKey ?bucketKey .\n';
+        q+= '}\n';
+        q+= 'WHERE {\n';
+        q+= '\t?proj a foaf:Project ;\n';
+        q+= '\t\tdoap:name ?name ;\n';
+        q+= '\t\tdoap:created ?created .\n';
+        q+= '\t\tOPTIONAL { ?proj doap:description ?description . }\n';
+        q+= '\t\tOPTIONAL { ?proj rvt:bucketKey ?bucketKey . }\n';
+        q+= '}';
+        return q;
+    }
+
     checkIfResourceExists(resourceURI) {
         var q = '';
         q+= 'ASK WHERE {\n';

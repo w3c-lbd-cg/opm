@@ -22,19 +22,7 @@ export class AdminRoute extends BaseRoute {
   public static create(router: Router) {
     //log
     console.log("[AdminRoute::create] Creating admin route.");
-
-    //List projects
-    router.get("/admin/projects", (req: Request, res: Response, next: NextFunction) => {
-      new AdminRoute().listDBs(req, res, next);
-    });
-    //Add project
-    router.post("/admin/project", (req: Request, res: Response, next: NextFunction) => {
-      new AdminRoute().addDB(req, res, next);
-    });
-    //Remove project
-    router.delete("/admin/project/:name", (req: Request, res: Response, next: NextFunction) => {
-      new AdminRoute().deleteDB(req, res, next);
-    });
+    
     //Wipe db
     router.delete("/:db/admin/wipe", (req: Request, res: Response, next: NextFunction) => {
       new AdminRoute().wipeDB(req, res, next);
@@ -99,9 +87,6 @@ export class AdminRoute extends BaseRoute {
    * The admin route.
    *
    * @class AdminRoute
-   * @method listDBs
-   * @method addDB
-   * @method deleteDB
    * @method wipeDB
    * @method attachOntology
    * @method reloadOntology
@@ -118,42 +103,6 @@ export class AdminRoute extends BaseRoute {
    * @param res {Response} The express Response object.
    * @next {NextFunction} Execute the next method.
    */
-  public listDBs(req: Request, res: Response, next: NextFunction) {
-    console.time("listDBs");
-    let am = new AdminModel()
-    am.listDBs(req)
-      .then(function (data) {
-        console.timeEnd("listDBs");
-        res.send(data);
-      })
-      .catch(function (err) {
-        res.send(err.error); 
-      });
-  }
-  public addDB(req: Request, res: Response, next: NextFunction) {
-    console.time("addDB");
-    let am = new AdminModel()
-    am.addDB(req)
-      .then(function (data) {
-        console.timeEnd("addDB");
-        res.send(data);
-      })
-      .catch(function (err) {
-        res.send(err.error); 
-      });
-  }
-  public deleteDB(req: Request, res: Response, next: NextFunction) {
-    console.time("deleteDB");
-    let am = new AdminModel()
-    am.deleteDB(req)
-      .then(function (data) {
-        console.timeEnd("deleteDB");
-        res.send(data);
-      })
-      .catch(function (err) {
-        res.send(err.error); 
-      });
-  }
   public wipeDB(req: Request, res: Response, next: NextFunction) {
     console.time("wipeDB");
     let am = new AdminModel()
@@ -163,7 +112,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public attachOntology(req: Request, res: Response, next: NextFunction) {
@@ -175,7 +124,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public reloadOntology(req: Request, res: Response, next: NextFunction) {
@@ -187,7 +136,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public detachOntology(req: Request, res: Response, next: NextFunction) {
@@ -199,7 +148,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public listOntologies(req: Request, res: Response, next: NextFunction) {
@@ -211,7 +160,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public addNamespace(req: Request, res: Response, next: NextFunction) {
@@ -223,7 +172,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public updateNamespace(req: Request, res: Response, next: NextFunction) {
@@ -235,7 +184,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public removeNamespace(req: Request, res: Response, next: NextFunction) {
@@ -247,7 +196,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public getNamespaces(req: Request, res: Response, next: NextFunction) {
@@ -259,7 +208,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public listRules(req: Request, res: Response, next: NextFunction) {
@@ -271,7 +220,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public addRule(req: Request, res: Response, next: NextFunction) {
@@ -283,7 +232,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
   public deleteRule(req: Request, res: Response, next: NextFunction) {
@@ -295,7 +244,7 @@ export class AdminRoute extends BaseRoute {
         res.send(data);
       })
       .catch(function (err) {
-        res.send(err.error); 
+        next(err);
       });
   }
 }
