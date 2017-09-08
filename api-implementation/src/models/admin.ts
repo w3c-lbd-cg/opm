@@ -33,7 +33,19 @@ export class AdminModel extends BaseModel {
     /**
      * DATABASE
      * @method wipeDB()     Wipe either the whole db or a named graph in the db
+     * @method postQuery()  Wipe either the whole db or a named graph in the db
      */
+
+    postQuery(req: Request){
+        const db: string = req.params.db;
+        const q = req.body.query;
+
+        //Perform query
+        let dbConn = new StardogConn(db);
+        dbConn.updateQuery({query: q});
+        console.log("Querying database: "+q);
+        return rp(dbConn.options);
+    }
 
     //Wipe database
     wipeDB(req: Request){

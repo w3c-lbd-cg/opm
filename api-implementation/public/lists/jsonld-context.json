@@ -10,5 +10,6 @@
     { "prefix": "doap", "uri": "http://usefulinc.com/ns/doap#" },
     { "prefix": "opm", "uri": "https://w3id.org/opm#" },
     { "prefix": "bot", "uri": "https://w3id.org/bot#" },
-    { "prefix": "foaf", "uri": "http://xmlns.com/foaf/0.1/" }
+    { "prefix": "foaf", "uri": "http://xmlns.com/foaf/0.1/" },
+    { "prefix": "rvt", "uri": "http://example.org/rvt#"}
 ]

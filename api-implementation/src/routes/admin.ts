@@ -23,6 +23,10 @@ export class AdminRoute extends BaseRoute {
     //log
     console.log("[AdminRoute::create] Creating admin route.");
     
+    //Write triples
+    router.post("/:db/admin/triples", (req: Request, res: Response, next: NextFunction) => {
+      new AdminRoute().postQuery(req, res, next);
+    });
     //Wipe db
     router.delete("/:db/admin/wipe", (req: Request, res: Response, next: NextFunction) => {
       new AdminRoute().wipeDB(req, res, next);
@@ -87,6 +91,7 @@ export class AdminRoute extends BaseRoute {
    * The admin route.
    *
    * @class AdminRoute
+   * @method postQuery
    * @method wipeDB
    * @method attachOntology
    * @method reloadOntology
@@ -103,6 +108,18 @@ export class AdminRoute extends BaseRoute {
    * @param res {Response} The express Response object.
    * @next {NextFunction} Execute the next method.
    */
+  public postQuery(req: Request, res: Response, next: NextFunction) {
+    console.time("postQuery");
+    let am = new AdminModel()
+    am.postQuery(req)
+      .then(function (data) {
+        console.timeEnd("postQuery");
+        res.send(data);
+      })
+      .catch(function (err) {
+        next(err);
+      });
+  }
   public wipeDB(req: Request, res: Response, next: NextFunction) {
     console.time("wipeDB");
     let am = new AdminModel()
