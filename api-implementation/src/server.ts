@@ -18,6 +18,7 @@ import { ProjectRoute } from "./routes/project";
 import { PropertyRoute } from "./routes/property";
 import { FoIRoute } from "./routes/feature-of-interest";
 import { CalculationRoute } from "./routes/calculation";
+import { BOTRoute } from "./routes/bot";
 
 /**
  * The server.
@@ -143,6 +144,9 @@ export class Server {
 
     //Property Route
     PropertyRoute.create(router);
+
+    //BOT Route
+    BOTRoute.create(router);
 
     //Calculation Route
     CalculationRoute.create(router);

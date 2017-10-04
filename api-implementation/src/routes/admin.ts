@@ -24,8 +24,12 @@ export class AdminRoute extends BaseRoute {
     console.log("[AdminRoute::create] Creating admin route.");
     
     //Write triples
-    router.post("/:db/admin/triples", (req: Request, res: Response, next: NextFunction) => {
+    router.post("/:db/admin/postTriples", (req: Request, res: Response, next: NextFunction) => {
       new AdminRoute().postQuery(req, res, next);
+    });
+    //Get triples
+    router.post("/:db/admin/getTriples", (req: Request, res: Response, next: NextFunction) => {
+      new AdminRoute().getQuery(req, res, next);
     });
     //Wipe db
     router.delete("/:db/admin/wipe", (req: Request, res: Response, next: NextFunction) => {
@@ -92,6 +96,7 @@ export class AdminRoute extends BaseRoute {
    *
    * @class AdminRoute
    * @method postQuery
+   * @method gettQuery
    * @method wipeDB
    * @method attachOntology
    * @method reloadOntology
@@ -114,6 +119,18 @@ export class AdminRoute extends BaseRoute {
     am.postQuery(req)
       .then(function (data) {
         console.timeEnd("postQuery");
+        res.send(data);
+      })
+      .catch(function (err) {
+        next(err);
+      });
+  }
+  public getQuery(req: Request, res: Response, next: NextFunction) {
+    console.time("getQuery");
+    let am = new AdminModel()
+    am.getQuery(req)
+      .then(function (data) {
+        console.timeEnd("getQuery");
         res.send(data);
       })
       .catch(function (err) {

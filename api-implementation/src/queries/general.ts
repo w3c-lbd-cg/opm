@@ -48,7 +48,8 @@ export class GeneralQueries {
         q+= '\t\tdoap:name ?name ;\n';
         q+= '\t\tdoap:created ?created ;\n';
         q+= '\t\tdoap:description ?description ;\n';
-        q+= '\t\trvt:bucketKey ?bucketKey .\n';
+        q+= '\t\trvt:bucketKey ?bucketKey ;\n';
+        q+= '\t\trvt:objectKey ?objectKey .\n';
         q+= '}\n';
         q+= 'WHERE {\n';
         q+= '\t?proj a foaf:Project ;\n';
@@ -56,6 +57,7 @@ export class GeneralQueries {
         q+= '\t\tdoap:created ?created .\n';
         q+= '\t\tOPTIONAL { ?proj doap:description ?description . }\n';
         q+= '\t\tOPTIONAL { ?proj rvt:bucketKey ?bucketKey . }\n';
+        q+= '\t\tOPTIONAL { ?proj rvt:objectKey ?objectKey . }\n';
         q+= '}';
         return q;
     }

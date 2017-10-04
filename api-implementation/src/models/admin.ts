@@ -47,6 +47,26 @@ export class AdminModel extends BaseModel {
         return rp(dbConn.options);
     }
 
+    getQuery(req: Request){
+        const db: string = req.params.db;
+        const q = req.body.query;
+
+        //Headers
+        var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
+
+        console.log(accept);
+
+        //Perform query
+        let dbConn = new StardogConn(db);
+        dbConn.getQuery({query: q, accept: accept});
+        console.log("Querying database: "+q);
+        return rp(dbConn.options)
+            .then(d => {
+                if(accept != 'application/ld+json'){ return d; }
+                return this.compactJSONLD(d);
+            });
+    }
+
     //Wipe database
     wipeDB(req: Request){
         //Define constants
