@@ -121,7 +121,7 @@ export class BOTModel extends BaseModel {
                     if(d[1].length > 0 && d[1][0].graph){
                         graphURI = d[1][0].graph; // NB! possibly voulnarable
                     }
-
+                    console.log(newTriples.triples);
                     //Write new triples to datastore
                     // if(newTriples && newTriples.triples){
                     //     var errorMsg = "Could not write property update to triplestore";
@@ -244,9 +244,9 @@ export class BOTModel extends BaseModel {
     }
 
     createOPMProps(data): string{
-        var now = moment().format();
         var triples = '';
         _.map(data, x => {
+            var now = moment().format();
             // Generate property URI if not given (which it is if the property exists already)
             var propertyURI = x.propURI ? x.propURI : this.generateURI(x.foiURI,'Property');
             var value = this.cleanLiteral(x.value);
