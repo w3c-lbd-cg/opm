@@ -54,7 +54,7 @@ export class BOTModel extends BaseModel {
     private reliabilities: string[] = ['assumption', 'confirmed'];
 
     //Upload file
-    uploadToBOT(req: Request, res, next){
+    public uploadToBOT(req: Request, res, next){
         const db = req.params.db;
         var objectName = '';
         var path = '';
@@ -78,23 +78,29 @@ export class BOTModel extends BaseModel {
                         console.log(d);
                         //Delete file
                         fs.unlink(path, (err) => {
-                            console.log(err);
-                            next(err); 
+                            //Return error if any
+                            if(err){
+                                console.log(err);
+                                this.errorHandler(err,500)
+                            }
                         })
                         res.send(path);
                     })
                     .catch(err => {
                         //Delete file
                         fs.unlink(path, (err) => {
-                            console.log(err);
-                            next(err); 
+                            //Return error if any
+                            if(err){
+                                console.log(err);
+                                this.errorHandler(err,500)
+                            }
                         });
                         next(err);
                     });
         });
     }
 
-    uploadProperties(req: Request, res, next){
+    public uploadProperties(req: Request, res, next){
         const db = req.params.db;
         var objectName = '';
         var newTriples: any = {}     // object to hold the new triples and data about them
@@ -121,36 +127,46 @@ export class BOTModel extends BaseModel {
                     if(d[1].length > 0 && d[1][0].graph){
                         graphURI = d[1][0].graph; // NB! possibly voulnarable
                     }
-                    console.log(newTriples.triples);
                     //Write new triples to datastore
-                    // if(newTriples && newTriples.triples){
-                    //     var errorMsg = "Could not write property update to triplestore";
-                    //     return this.writeTriples(newTriples.triples, graphURI, db, errorMsg);
-                    // }else{
-                    //     console.log("No new triples")
-                    //     return
-                    // }
+                    if(newTriples && newTriples.triples){
+                        var errorMsg = "Could not write property update to triplestore";
+                        return this.writeTriples(newTriples.triples, graphURI, db, errorMsg);
+                    }else{
+                        return
+                    }
                 })
                 .then(d => {
                     //Delete file
-                    fs.unlink(path, (err) => {
-                        console.log(err);
+                    fs.unlink(path, err => {
+                        //Return error if any
+                        if(err){
+                            console.log(err);
+                            this.errorHandler(err,500)
+                        }else{
+                            console.log("Successfully detached file");
+                        }
                     })
-                    var message = `Generated ${newTriples.created} new properties. Updated ${newTriples.updated} existing properties with new states. Skipped ${newTriples.skipped} property updates since the value was equal to the previous state.`;
+                    var message = this.createBatchUploadResultMessage(newTriples);
                     console.log(message);
-                    res.send(message);
+                    res.send(JSON.stringify({message: message}));
                 })
                 .catch(err => {
                     //Delete file
                     fs.unlink(path, (err) => {
-                        console.log(err);
+                        //Return error if any
+                        if(err){
+                            console.log(err);
+                            this.errorHandler(err,500)
+                        }else{
+                            console.log("Successfully detached file");
+                        }
                     });
                     next(err);
                 });
         });
     }
 
-    matchProps(newProps, existProps){
+    private matchProps(newProps, existProps){
         var newPropArr = []     // property does not exist on the FoI
         var updatePropArr = []  // property exists but value has changed
         var valMatchArr = []    // property exists and value is the same
@@ -170,14 +186,9 @@ export class BOTModel extends BaseModel {
                     }
                     return true;
                 }
-                // FoI doesn't already have the current property (but has other properties)
-                else if(valN.subject == valE.subject){
-                    newPropArr.push({foiURI: valN.subject, property: valN.predicate, value: valN.object});
-                    return true;
-                }
                 return
             })
-            // FoI doesn't have any OPM properties yet
+            // FoI doesn't have the property assigned yet
             if(match.indexOf(true) == -1){
                 newPropArr.push({foiURI: valN.subject, property: valN.predicate, value: valN.object})
             }
@@ -190,10 +201,10 @@ export class BOTModel extends BaseModel {
         if(updatePropArr.length > 0){
             triples += '#UPDATED PROPS\n'+this.createOPMProps(updatePropArr);
         }
-        return {triples: triples, created: newPropArr.length, updated: updatePropArr.length, skipped: valMatchArr.length };
+        return {triples: triples, created: newPropArr.length, updated: updatePropArr.length, skipped: valMatchArr.length, total: newProps.length};
     }
 
-    parseTurtle(data) {
+    private parseTurtle(data) {
         var triples: object[] = [];
         var parser = _N3.Parser(),
         rdfStream = fs.createReadStream(data);
@@ -219,7 +230,7 @@ export class BOTModel extends BaseModel {
         })
     }
 
-    getExisting(db){
+    private getExisting(db){
         // Get all FoIs in the project, their properties and their latest states
         var input: GetProp = { latest: true, queryType: 'select' };
         let sp = new OPMProp();
@@ -243,10 +254,10 @@ export class BOTModel extends BaseModel {
             })
     }
 
-    createOPMProps(data): string{
+    private createOPMProps(data): string{
+        var now = moment().format();
         var triples = '';
         _.map(data, x => {
-            var now = moment().format();
             // Generate property URI if not given (which it is if the property exists already)
             var propertyURI = x.propURI ? x.propURI : this.generateURI(x.foiURI,'Property');
             var value = this.cleanLiteral(x.value);
@@ -273,19 +284,39 @@ export class BOTModel extends BaseModel {
         return triples;
     }
 
-    generateURI(someURI: string, type: string){
+    private generateURI(someURI: string, type: string){
         var guid = uuid();
         var s = someURI.split('/');
         return s[0]+'//'+s[2]+'/'+s[3]+'/'+type+'/'+guid;
     }
 
     // Fix datatype URIs (must be encapsulated in <>)
-    cleanLiteral(val){
+    private cleanLiteral(val){
         var i = val.indexOf('^^');
         if(i != -1){
             val = val.substr(0, i+2)+'<'+val.substr(i+2)+'>';
         }
         return val;
+    }
+
+    private createBatchUploadResultMessage(newTriples): string{
+        const created = newTriples.created;
+        const updated = newTriples.updated;
+        const total = newTriples.total;
+        var string = `Recieved ${total} properties. `;
+        if(created == 1){
+            string += `Generated ${created} new property. `;
+        }
+        if(created > 1){
+            string += `Generated ${created} new properties. `;
+        }
+        if(updated == 1){
+            string += `Updated ${updated} existing property with a new state. `;
+        }
+        if(updated > 1){
+            string += `Updated ${updated} existing properties with new states. `;
+        }
+        return string;
     }
 
 }
