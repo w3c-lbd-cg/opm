@@ -17,6 +17,7 @@ import { GeneralQueries } from "./../queries/general";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
 
 //Lists
 var defaultNamespaces: NS[] = require('./../../public/lists/default-namespaces.json');
@@ -51,7 +52,7 @@ export class ProjectModel extends BaseModel {
         const description: string = req.body.projectDescription;
         const db: string = 'P'+number;
         const host: string = req.headers.host;
-        const project_uri = `https://${host}/${db}`;
+        const project_uri = `${protocol}://${host}/${db}`;
 
         if(!number){
             errors.error = "Please specify a project number";

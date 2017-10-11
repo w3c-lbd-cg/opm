@@ -1,6 +1,9 @@
 import { Request } from "express";
 const uuid = require('uuid/v4');
 
+import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
+
 export class UriFunctions {
     
     private db: string;
@@ -16,11 +19,11 @@ export class UriFunctions {
     }
     
     newUri(){
-        return `https://${this.host}/${this.db}/${this.type}/${this.guid}`;
+        return `${protocol}://${this.host}/${this.db}/${this.type}/${this.guid}`;
     }
 
     graphUri(){
-        return `https://${this.host}/${this.db}/${this.type}`;
+        return `${protocol}://${this.host}/${this.db}/${this.type}`;
     }
 
 }

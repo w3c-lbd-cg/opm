@@ -20,6 +20,7 @@ import { UriFunctions } from "./../helpers/uri-functions";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
 
 export class CalculationModel extends BaseModel {
 
@@ -44,7 +45,7 @@ export class CalculationModel extends BaseModel {
     //Update all calculations
     putCalculations(req: Request){
         const db:string = req.params.db;
-        const graphURI = "https://localhost/opm/HVAC-I";
+        const graphURI = `${protocol}://localhost/opm/HVAC-I`;
 
         //Step 1 - infer outdated classes
         var args = {graphURI: graphURI};
@@ -65,8 +66,8 @@ export class CalculationModel extends BaseModel {
     getCalculation(req: Request){
         const db:string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const hostURI: string = `https://${host}/${db}`;
-        const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const hostURI: string = `${protocol}://${host}/${db}`;
+        const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         //Headers
         var accept: string = req.headers.accept != '*/*' ? req.headers.accept : 'application/ld+json'; //Default accept: JSON-LD
@@ -89,10 +90,10 @@ export class CalculationModel extends BaseModel {
     createCalculation(req: Request): any{
         const db:string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const hostURI: string = `https://${host}/${db}`;
+        const hostURI: string = `${protocol}://${host}/${db}`;
 
         var dummyDomain: string = 'HVAC';
-        const dummyUser: string = 'https://www.niras.dk/employees/mhra'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
         var graphURI: string = hostURI+'/'+dummyDomain;
 
         //Empty variables
@@ -136,8 +137,8 @@ export class CalculationModel extends BaseModel {
     attachCalculation(req: Request): any{
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const hostURI: string = `https://${host}/${db}`;
-        const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const hostURI: string = `${protocol}://${host}/${db}`;
+        const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         var ntriples: string;
         var graphURI: string;
@@ -208,8 +209,8 @@ export class CalculationModel extends BaseModel {
     reRunCalculation(req: Request): any{
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const hostURI: string = `https://${host}/${db}`;
-        const calculationURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const hostURI: string = `${protocol}://${host}/${db}`;
+        const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         var ntriples: string;
         var graphURI: string;

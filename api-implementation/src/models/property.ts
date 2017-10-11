@@ -17,6 +17,7 @@ import { GeneralQueries } from "./../queries/general";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
 
 //Interfaces
 import { PutProp, PostPutFoIProp, GetProp } from "opm-query-generator";
@@ -29,9 +30,9 @@ export class PropertyModel extends BaseModel {
     deleteProperty(req: Request){
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const propertyURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
-        const dummyUser: string = 'https://www.niras.dk/employees/mhra'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
 
         //Body
         const comment: string = req.body.string;       //Optional: Why is it deleted?
@@ -93,9 +94,9 @@ export class PropertyModel extends BaseModel {
     updateProperty(req: Request){
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const propertyURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
-        const dummyUser: string = 'https://www.niras.dk/employees/mhra'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
         
         //Body
         var value = req.body.value;
@@ -233,7 +234,7 @@ export class PropertyModel extends BaseModel {
     getProperty(req: Request){
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const propertyURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         //Query parameters
         var getLatest: boolean = req.query.latest == 'true' ? true : false; //If querying for only the latest property evaluation
@@ -264,7 +265,7 @@ export class PropertyModel extends BaseModel {
     listSubscribers(req: Request){
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        var propertyURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        var propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         propertyURI = _s.strLeftBack(propertyURI, '/subscribers');
 
         //Query parameters

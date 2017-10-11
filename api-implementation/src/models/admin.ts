@@ -17,6 +17,7 @@ import { GeneralQueries } from "./../queries/general";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
 
 //Lists
 var defaultNamespaces: NS[] = require('./../../public/lists/default-namespaces.json');
@@ -185,7 +186,7 @@ export class AdminModel extends BaseModel {
         //Define constants
         const db: string = req.params.db;
         const host: string = req.headers.host.split(':')[0];
-        const named_graph_uri: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const named_graph_uri: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         console.log(named_graph_uri);
         //Check if it exists
         return this.checkIfGraphExist(db, named_graph_uri)
