@@ -41,6 +41,7 @@ export class ProjectModel extends BaseModel {
 
     //List projects
     listProjects(req: Request){
+        console.log(req.headers.host);
         let dbConn = new StardogConn();
         dbConn.getDatabases();
         return rp(dbConn.options);

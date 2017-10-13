@@ -26,6 +26,10 @@ import { RUD } from "./../queries/foi";
 import { GetByType } from "./../queries/foi";
 import { PostPutFoIProp, GetProp } from "opm-query-generator";
 
+import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
+const host = AppConfig.host;
+
 //Lists
 var validProperties = require('./../../public/lists/valid-properties.json');
 
@@ -87,7 +91,7 @@ export class FoIModel extends BaseModel {
         const foiType: string = req.params.foi;
         const typeURI: string = 'https://w3id.org/seas/'+foiType;
 
-        const dummyUser: string = 'https://www.niras.dk/employees/mhra'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
         
         //Body
         const domain: string = req.body.domain;     //Domain for the FoI (HVAC, Architecture etc.)
@@ -97,8 +101,7 @@ export class FoIModel extends BaseModel {
         //Graph URI
         if(!domain){ this.errorHandler("Error: No domain specified",400) }
 
-        const host: string = req.headers.host.split(':')[0];
-        const hostURI: string = `https://${host}/${db}`;
+        const hostURI: string = `${protocol}://${host}/${db}`;
         const graphURI: string = `${hostURI}/${domain}`;
 
         var ntriples: string = '';
@@ -136,10 +139,9 @@ export class FoIModel extends BaseModel {
     //Delete FoI
     deleteFoI(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
-        const foiURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const foiURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
-        const dummyUser: string = 'https://www.niras.dk/employees/mojo'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mojo`; //TEMP!
         
         return this.checkIfResourceExists(db,foiURI)
                 .then(d => {
@@ -162,11 +164,10 @@ export class FoIModel extends BaseModel {
     //Update FoI
     putFoI(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const guid: string = req.params.guid;
-        const foiURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const foiURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
-        const dummyUser: string = 'https://www.niras.dk/employees/mhra'; //TEMP!
+        const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
 
         //Body
         const label: string = req.body.label;           //Optional: If change of FoI: Label of FoI. Else not used
@@ -212,8 +213,7 @@ export class FoIModel extends BaseModel {
     //Get FoI properties
     getFoIProps(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
-        const foiURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const foiURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         const foiType: string = req.params.foi;
         const typeURI: string = 'https://w3id.org/seas/'+foiType;
         const graphURI = new UriFunctions(req, "HVAC").graphUri(); //TEMP
@@ -266,8 +266,7 @@ export class FoIModel extends BaseModel {
     //POST FEATURE OF INTEREST PROPERTY
     postFoIProp(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
-        const foiURI: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const foiURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         const foiType: string = req.params.foi;
         const typeURI: string = 'https://w3id.org/seas/'+foiType;
         const graphURI = new UriFunctions(req, "HVAC").graphUri(); //TEMP

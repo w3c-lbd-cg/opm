@@ -18,6 +18,7 @@ import { GeneralQueries } from "./../queries/general";
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
 const protocol = AppConfig.protocol;
+const host = AppConfig.host;
 
 //Lists
 var defaultNamespaces: NS[] = require('./../../public/lists/default-namespaces.json');
@@ -90,8 +91,7 @@ export class AdminModel extends BaseModel {
         const db: string = req.params.db;
         const named_graph_name: string = req.body.named_graph_name;
         const data_url: string = req.body.graph_url;
-        const host: string = req.headers.host;
-        const named_graph_uri = `https://${host}/${db}/admin/externalOntology/${named_graph_name}`;
+        const named_graph_uri = `${protocol}://${host}/${db}/admin/externalOntology/${named_graph_name}`;
         //Check if named graph exists
         return this.checkIfGraphExist(db, named_graph_uri)
             .then(exist => {
@@ -135,8 +135,7 @@ export class AdminModel extends BaseModel {
         //Define constants
         const db: string = req.params.db;
         const data_url: string = req.body.graph_url;
-        const host: string = req.headers.host.split(':')[0];
-        const named_graph_uri: string = `https://${host}${req.originalUrl.split('?')[0]}`;
+        const named_graph_uri: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         //Check if named graph exists
         return this.checkIfGraphExist(db, named_graph_uri)
             .then(exist => {
@@ -185,7 +184,6 @@ export class AdminModel extends BaseModel {
     detachOntology(req: Request){
         //Define constants
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const named_graph_uri: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         console.log(named_graph_uri);
         //Check if it exists

@@ -23,6 +23,8 @@ import { GeneralQueries } from "./../queries/general";
 //Config
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
+const protocol = AppConfig.protocol;
+const host = AppConfig.host;
 
 //Interfaces
 import { PutProp, PostPutFoIProp, GetProp } from "opm-query-generator";

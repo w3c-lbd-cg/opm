@@ -18,6 +18,7 @@ import { GeneralQueries } from "./../queries/general";
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
 const protocol = AppConfig.protocol;
+const host = AppConfig.host;
 
 //Interfaces
 import { PutProp, PostPutFoIProp, GetProp } from "opm-query-generator";
@@ -29,7 +30,6 @@ export class PropertyModel extends BaseModel {
 
     deleteProperty(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
@@ -93,7 +93,6 @@ export class PropertyModel extends BaseModel {
 
     updateProperty(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         const dummyUser: string = `${protocol}://www.niras.dk/employees/mhra`; //TEMP!
@@ -233,7 +232,6 @@ export class PropertyModel extends BaseModel {
 
     getProperty(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
         //Query parameters
@@ -264,7 +262,6 @@ export class PropertyModel extends BaseModel {
 
     listSubscribers(req: Request){
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         var propertyURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
         propertyURI = _s.strLeftBack(propertyURI, '/subscribers');
 

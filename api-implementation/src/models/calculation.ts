@@ -21,6 +21,7 @@ import { UriFunctions } from "./../helpers/uri-functions";
 import { DbConfig } from './../config/database';
 import { AppConfig } from './../config/app';
 const protocol = AppConfig.protocol;
+const host = AppConfig.host;
 
 export class CalculationModel extends BaseModel {
 
@@ -65,7 +66,6 @@ export class CalculationModel extends BaseModel {
 
     getCalculation(req: Request){
         const db:string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const hostURI: string = `${protocol}://${host}/${db}`;
         const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
@@ -89,7 +89,6 @@ export class CalculationModel extends BaseModel {
 
     createCalculation(req: Request): any{
         const db:string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const hostURI: string = `${protocol}://${host}/${db}`;
 
         var dummyDomain: string = 'HVAC';
@@ -136,7 +135,6 @@ export class CalculationModel extends BaseModel {
     //Only for new instances
     attachCalculation(req: Request): any{
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const hostURI: string = `${protocol}://${host}/${db}`;
         const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
@@ -208,7 +206,6 @@ export class CalculationModel extends BaseModel {
     //where one or more argument(s) have changed.
     reRunCalculation(req: Request): any{
         const db: string = req.params.db;
-        const host: string = req.headers.host.split(':')[0];
         const hostURI: string = `${protocol}://${host}/${db}`;
         const calculationURI: string = `${protocol}://${host}${req.originalUrl.split('?')[0]}`;
 
