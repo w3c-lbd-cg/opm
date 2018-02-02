@@ -127,10 +127,10 @@ opm:hasProperty
                                 "Relation mellem en feature af interesse og en egenskab denne har tilknyttet."@da ;
         rdfs:range              opm:Property .
 
-opm:hasRequirement
+opm:hasPropertyRequirement
         a owl:ObjectProperty ;
-        rdfs:label              "has requirement"@en ,
-                                "har krav"@da ;
+        rdfs:label              "has property requirement"@en ,
+                                "har egenskabskrav"@da ;
         rdfs:comment            "Relationship between a feature of interest and a property requirement it has assigned."@en ,
                                 "Relation mellem en feature af interesse og et egenskabskrav denne har tilknyttet."@da ;
         rdfs:range              opm:Property .
