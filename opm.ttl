@@ -64,9 +64,9 @@ foaf:name a owl:DatatypeProperty .
 #################################
 opm:Property
         a owl:Class ;
-        rdfs:label      "Property"@en ,
-                        "Egenskab"@da ;
-        owl:sameAs      seas:Property .
+        rdfs:label            "Property"@en ,
+                              "Egenskab"@da ;
+        owl:equivalentClass   seas:Property .
 
 opm:State
         a owl:Class ;
