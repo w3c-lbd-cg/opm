@@ -67,19 +67,19 @@ foaf:name a owl:DatatypeProperty .
 
 # Consider using seas:Property instead
 opm:Property
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "Property"@en ,
                         "Egenskab"@da ;
         owl:equivalentClass   seas:Property .
 
 opm:State
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "State"@en ,
-                        "Tilstand"@da ;
+                        "Stade"@da ;
         rdfs:comment    """A state is an evaluation holding the value + metadata about a property that was true for the given time.
 Metadata must as a minimum be the time of generation stated by prov:generatedAtTime, but preferably also a prov:wasAttributedTo reference to the agent who created the state.
 Calculated properties are also stored as states as these change when an expression argument changes. Calculations must have an opm:expression and a prov:wasDerivedFrom assigned to them. prov:wasDerivedFrom is stored as a rdf:Seq pointing to the property states that were used for the calculation."""@en ,
-                        """En tilstand er en evaluering, der indeholder værdien + metadata omkring en egenskab, som var sande for et givent tidspunkt.
+                        """Et stade er en evaluering, der indeholder værdien + metadata omkring en egenskab, som var gældende ved et givent tidspunkt.
 Metadata skal som minimum bestå af oprettelsestidspunktet givet ved prov:generatedAtTime, men helst også af en prov:wasAttributedTo reference til den agent som oprettede tilstanden.
 Beregnede egenskaber lagres også som tilstande da disse ændres når en beregningsparameter ændres. Beregninger skal have en opm:expression og en prov:wasDerivedFrom tilknyttet. prov:wasDerivedFrom lagres som en rdf:Seq, som peger på egenskabstilstandene som blev brugt til beregningen."""@da ; 
         rdfs:subClassOf seas:Evaluation .
@@ -99,7 +99,7 @@ opm:OutdatedState
                         "Enhver egenskabstilstand som er blevet erstattet af en ny klassificeres som opm:OutdatedState."@da .
 
 opm:Deleted
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "Deleted"@en ,
                         "Slettet"@da ;
         rdfs:comment    "A deleted property is a property that is no longer part of the design. The class enables a user to delete a property without removing it from the dataset."@en ,
@@ -115,7 +115,7 @@ opm:Assumed
                         "En antagelse er en ikke-bekræftet egenskab. Antagelser gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da .
 
 opm:Confirmed
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "Confirmed"@en ,
                         "Bekræftet"@da ;
         rdfs:comment    "A confirmed property is a property that has been validated by an agent who is authorized to do so. A confirmed property should not be changed."@en ,
