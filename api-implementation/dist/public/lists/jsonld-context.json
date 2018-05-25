@@ -1,0 +1,15 @@
+[
+    { "prefix": "rdf", "uri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#" },
+    { "prefix": "rdfs", "uri": "http://www.w3.org/2000/01/rdf-schema#" },
+    { "prefix": "xsd", "uri": "http://www.w3.org/2001/XMLSchema#" },
+    { "prefix": "prov", "uri": "http://www.w3.org/ns/prov#" },
+    { "prefix": "sd", "uri": "http://www.w3.org/ns/sparql-service-description#" },
+    { "prefix": "opm", "uri": "https://w3id.org/opm#" },
+    { "prefix": "cdt", "uri": "http://w3id.org/lindt/custom_datatypes#" },
+    { "prefix": "seas", "uri": "https://w3id.org/seas/" },
+    { "prefix": "doap", "uri": "http://usefulinc.com/ns/doap#" },
+    { "prefix": "opm", "uri": "https://w3id.org/opm#" },
+    { "prefix": "bot", "uri": "https://w3id.org/bot#" },
+    { "prefix": "foaf", "uri": "http://xmlns.com/foaf/0.1/" },
+    { "prefix": "rvt", "uri": "http://example.org/rvt#"}
+]

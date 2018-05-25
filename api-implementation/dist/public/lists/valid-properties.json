@@ -1,0 +1,39 @@
+[
+    {
+        "foiType": "https://w3id.org/seas/HeatingSystem",
+        "properties": [
+            {
+                "uri": "https://w3id.org/seas/fluidTemperatureDifference",
+                "unit": "Cel",
+                "datatype": "cdt:ucum"
+            },{
+                "uri": "https://w3id.org/seas/fluidSupplyTemperature",
+                "unit": "Cel",
+                "datatype": "cdt:ucum"
+            },{
+                "uri": "https://w3id.org/seas/fluidReturnTemperature",
+                "unit": "Cel",
+                "datatype": "cdt:ucum"
+            },{
+                "uri": "https://w3id.org/seas/subFlowSystemOf",
+                "unit": "W",
+                "datatype": "cdt:ucum",
+                "objectProperty": true
+            }
+        ]
+    },{
+        "foiType": "https://w3id.org/seas/HeatConsumer",
+        "properties": [
+            {
+                "uri": "https://w3id.org/seas/consumerHeatOutput",
+                "unit": "W",
+                "datatype": "cdt:ucum"
+            },{
+                "uri": "https://w3id.org/seas/subFlowSystemOf",
+                "unit": "W",
+                "datatype": "cdt:ucum",
+                "objectProperty": true
+            }
+        ]
+    }
+]

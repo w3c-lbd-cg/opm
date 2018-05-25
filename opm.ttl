@@ -1,4 +1,4 @@
-# Copyright 2017 W3C Linked Building Data Community Group.
+# Copyright 2018 W3C Linked Building Data Community Group.
 # 
 # This work is licensed under a Creative Commons Attribution License. 
 # This copyright applies to the OPM Vocabulary Specification and
@@ -17,6 +17,7 @@
 @prefix foaf:   <http://xmlns.com/foaf/0.1/> .
 @prefix dce:    <http://purl.org/dc/elements/1.1/> .
 @prefix dbo:    <http://dbpedia.org/ontology/> .
+@prefix schema: <http://schema.org/> .
 @prefix seas:   <http://w3id.org/seas/> .
 
 @prefix opm: <https://w3id.org/opm#> .
@@ -41,17 +42,18 @@ foaf:name a owl:DatatypeProperty .
 #################################
 <https://w3id.org/opm#> rdf:type voaf:Vocabulary , 
                                  owl:Ontology ;
-    dce:modified "July 13th 2017"^^xsd:string ;
-    owl:versionInfo "July 13th 2017"^^xsd:string ;
-    dcterms:issued "2017-07-13"^^xsd:date ;
-    #owl:versionIRI <https://w3id.org/opm/opm-0.1.0> ;
-    owl:versionInfo "v0.1.0" ;
-    #owl:priorVersion <https://w3id.org/opm/opm-0.1.0> ;
+    dce:modified "May 25th 2018"^^xsd:string ;
+    owl:versionInfo "May 25th 2018"^^xsd:string ;
+    dcterms:issued "2018-05-25"^^xsd:date ;
+    #owl:versionIRI <https://w3id.org/opm/0.1.0> ;
+    owl:versionInfo "0.1.0" ;
+    #owl:priorVersion <https://w3id.org/opm/0.1.0> ;
     dcterms:title "OPM: Ontology for Property Management"@en ;
     dcterms:description """The Ontology for Property Management (OPM) extends the concepts introduced in the Smart Energy Aware Systems (SEAS) Evaluations ontology."""@en ;
     dcterms:creator [a foaf:Person ; foaf:name "Mads Holten Rasmussen" ] ;
     dcterms:creator [a foaf:Person ; foaf:name "Pieter Pauwels" ] ;
     dcterms:contributor [a foaf:Person ; foaf:name "Maxime Lefrançois" ] ;
+    dcterms:contributor [a foaf:Person ; foaf:name "Mathias Bonduel" ] ;
     dcterms:license <https://creativecommons.org/licenses/by/1.0/> ;
     vann:preferredNamespacePrefix "opm" ;
     vann:preferredNamespaceUri <https://w3id.org/opm#> ;
@@ -62,11 +64,13 @@ foaf:name a owl:DatatypeProperty .
 #################################
 # CLASSES
 #################################
+
+# Consider using seas:Property instead
 opm:Property
         a owl:ObjectProperty ;
         rdfs:label      "Property"@en ,
                         "Egenskab"@da ;
-        owl:sameAs      seas:Property .
+        owl:equivalentClass   seas:Property .
 
 opm:State
         a owl:ObjectProperty ;
@@ -80,19 +84,19 @@ Metadata skal som minimum bestå af oprettelsestidspunktet givet ved prov:genera
 Beregnede egenskaber lagres også som tilstande da disse ændres når en beregningsparameter ændres. Beregninger skal have en opm:expression og en prov:wasDerivedFrom tilknyttet. prov:wasDerivedFrom lagres som en rdf:Seq, som peger på egenskabstilstandene som blev brugt til beregningen."""@da ; 
         rdfs:subClassOf seas:Evaluation .
 
-opm:Calculation
-        a owl:ObjectProperty ;
-        rdfs:label      "Calculation"@en ,
-                        "Beregning"@da ;
-        rdfs:comment    """A calculation holds the necessary information to infer derived properties."""@en ,
-                        """En beregning indeholder den nødvendige information til at inferere en afledt egenskab."""@da .
+opm:CurrentState
+        a owl:Class ;
+        rdfs:label      "Current State"@en ,
+                        "Aktuel tilstand"@da ;
+        rdfs:comment    "The property state that was most recently defined is an instance of opm:CurrentState."@en ,
+                        "Egenskabsstadet som senest blev defineret klassificeres som opm:CurrentState."@da .
 
-opm:Assumption
-        a owl:ObjectProperty ;
-        rdfs:label      "Assumption"@en ,
-                        "Antagelse"@da ;
-        rdfs:comment    "An assumption is an unconfirmed property. Assumptions enable designers to move on with the design knowing that the assumed property might change as the project progresses."@en ,
-                        "En antagelse er en ikke-bekræftet egenskab. Antagelser gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da .
+opm:OutdatedState
+        a owl:Class ;
+        rdfs:label      "Outdated State"@en ,
+                        "Forældet tilstand"@da ;
+        rdfs:comment    "Any property state that has been substituted with a new one is an instance of opm:OutdatedState."@en ,
+                        "Enhver egenskabstilstand som er blevet erstattet af en ny klassificeres som opm:OutdatedState."@da .
 
 opm:Deleted
         a owl:ObjectProperty ;
@@ -101,6 +105,15 @@ opm:Deleted
         rdfs:comment    "A deleted property is a property that is no longer part of the design. The class enables a user to delete a property without removing it from the dataset."@en ,
                         "En slettet egenskab er en egenskab, som ikke længere er en del af designet. Klassen gør det muligt for en bruger at slette en egenskab uden den slettes fra datasættet."@da .
 
+# PROPERTY RELIABILITY
+
+opm:Assumed
+        a owl:ObjectProperty ;
+        rdfs:label      "Assumed"@en ,
+                        "Antaget"@da ;
+        rdfs:comment    "An assumption is an unconfirmed property. Assumptions enable designers to move on with the design knowing that the assumed property might change as the project progresses."@en ,
+                        "En antagelse er en ikke-bekræftet egenskab. Antagelser gør det muligt for designere at fortsætte projekteringen velvidende at den antagede værdi muligvis vil ændres som projektet skrider frem."@da .
+
 opm:Confirmed
         a owl:ObjectProperty ;
         rdfs:label      "Confirmed"@en ,
@@ -108,11 +121,37 @@ opm:Confirmed
         rdfs:comment    "A confirmed property is a property that has been validated by an agent who is authorized to do so. A confirmed property should not be changed."@en ,
                         "En bekræftet egenskab er en egenskab, der er blevet valideret af en agent, som har autoritet dertil. En bekræftet egenskab bør ikke ændres."@da .
 
+opm:Calculation
+        a owl:ObjectProperty ;
+        rdfs:label      "Calculation"@en ,
+                        "Beregning"@da ;
+        rdfs:comment    """A calculation holds the necessary information to infer derived properties."""@en ,
+                        """En beregning indeholder den nødvendige information til at inferere en afledt egenskab."""@da .
 
 #################################
 # OBJECT PROPERTIES
 #################################
 
+# Consider using seas:hasProperty instead
+opm:hasProperty
+        a owl:ObjectProperty ;
+        rdfs:subPropertyOf      seas:hasProperty ;
+        rdfs:label              "has property"@en ,
+                                "har egenskab"@da ;
+        rdfs:comment            "Relationship between a feature of interest and a property it has assigned."@en ,
+                                "Relation mellem en feature af interesse og en egenskab denne har tilknyttet."@da ;
+        rdfs:range              opm:Property .
+
+# To be considered
+opm:hasPropertyRequirement
+        a owl:ObjectProperty ;
+        rdfs:label              "has property requirement"@en ,
+                                "har egenskabskrav"@da ;
+        rdfs:comment            "Relationship between a feature of interest and a property requirement it has assigned."@en ,
+                                "Relation mellem en feature af interesse og et egenskabskrav denne har tilknyttet."@da ;
+        rdfs:range              opm:Property .
+
+# Consider using seas:evaluation instead
 opm:hasState
         a owl:ObjectProperty ;
         rdfs:subPropertyOf      seas:evaluation ;
@@ -123,6 +162,7 @@ opm:hasState
         rdfs:domain             opm:Property ;
         rdfs:range              opm:State .
 
+# To be considered
 opm:documentation
         a owl:ObjectProperty ;
         rdfs:label      "documentation"@en ,
@@ -153,12 +193,14 @@ opm:inferredProperty
 #################################
 # DATATYPE PROPERTIES
 #################################
+
+# DEPRECATED!
 opm:valueAtState
-        a owl:DatatypeProperty ;
+        a rdf:Property ;
         rdfs:label      "value at state"@en ,
                         "værdi ved tilstand"@da ;
-        rdfs:comment    "Points to a literal with the value of the property at the given state."@en ,
-                        "Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
+        rdfs:comment    "NB! Deprecated: use schema:value instead. Points to a literal with the value of the property at the given state."@en ,
+                        "NB! Forældet: brug schema:value i stedet. Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
         rdfs:domain     opm:State .
 
 opm:expression
@@ -169,10 +211,26 @@ opm:expression
                         "Peger på en tekststreng, som indeholder det (matematiske) udtryk, som skal eksekveres med en beregning. Argumenter i udtrykket er givet ved variabler (fx ?arg1), som svarer til dem der benyttes i argument-stierne."@da ;
         rdfs:domain     opm:Calculation .
 
+# DEPRECATED!
 opm:unit
         a owl:DatatypeProperty ;
         rdfs:label      "unit"@en ,
                         "enhed"@da ;
-        rdfs:comment    "Points to a literal containing the unit of the inferred property. The unit is applied as a concatenation with the calculation result. If the result is 40 and the unit is '°C'^^cdt:temperature the result will be inferred as '40 °C'^^cdt:temperature."@en ,
-                        "Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
+        rdfs:comment    "NB! Deprecated: use any preferred unit system (QUDT, OM, schema, CDT UCUM etc.). Points to a literal containing the unit of the inferred property. The unit is applied as a concatenation with the calculation result. If the result is 40 and the unit is '°C'^^cdt:temperature the result will be inferred as '40 °C'^^cdt:temperature."@en ,
+                        "NB! Forældet: brug et hvert foretrukket enhedssystem (QUDT, OM, schema, CDT UCUM etc.). Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
         rdfs:domain     opm:Calculation .
+
+#################################
+# CONSTRAINTS
+#################################
+# Disjunctive classes
+[] a owl:AllDisjointClasses ;
+        owl:members
+              ( opm:Property
+                opm:State ) .
+
+# Disjunctive classes
+[] a owl:AllDisjointClasses ;
+        owl:members
+              ( opm:Assumption
+                opm:Confirmed ) .

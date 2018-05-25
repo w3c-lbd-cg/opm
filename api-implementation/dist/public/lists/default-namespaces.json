@@ -1,0 +1,13 @@
+[
+    { "prefix": "", "uri": "http://api.stardog.com/" },
+    { "prefix": "bot", "uri": "https://w3id.org/bot#" },
+    { "prefix": "owl", "uri": "http://www.w3.org/2002/07/owl#" },
+    { "prefix": "rdf", "uri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#" },
+    { "prefix": "rdfs", "uri": "http://www.w3.org/2000/01/rdf-schema#" },
+    { "prefix": "stardog", "uri": "tag:stardog:api:" },
+    { "prefix": "xsd", "uri": "http://www.w3.org/2001/XMLSchema#" },
+    { "prefix": "prov", "uri": "http://www.w3.org/ns/prov#" },
+    { "prefix": "bot", "uri": "https://w3id.org/bot#" },
+    { "prefix": "opm", "uri": "https://w3id.org/opm#" },
+    { "prefix": "foaf", "uri": "http://xmlns.com/foaf/0.1/" }
+]
