@@ -105,7 +105,7 @@
             <h4>Overview and examples</h4>
 
             <figure>
-                <a href="assets/states.svg"><img alt="Interfaces" src="assets/states.svg"></a>
+                <a href="assets/states.svg"><img alt="States" src="assets/states.svg"></a>
                 <figcaption>Defining a property state.</figcaption>
             </figure>
 
@@ -252,6 +252,18 @@
                 <table>
                     <tbody>
                         <tr>
+                            <th>Example</th>
+                            <td><span property="skos:example">
+                                Some area property defined as a sub property of <a href="#hasProperty">opm:hasProperty</a>:
+                                <br>
+                                <code>
+                                    ex:area  <a href="https://www.w3.org/2000/01/rdf-schema#subPropertyOf">rdfs:subPropertyOf</a>  <a href="#hasProperty">opm:hasProperty</a> .
+                                    <br>
+                                    &lt;window&gt; ex:area &lt;window_prop_area&gt; .
+                                </code>
+                            </span></td>
+                        </tr>
+                        <tr>
                             <th>Range</th>
                             <td><span rel="rdfs:range" resource="opm:Property"><a href="#Property">opm:Property</a></span></td>
                         </tr>
@@ -276,6 +288,22 @@
                 <br>
                 <table>
                     <tbody>
+                        <tr>
+                            <th>Example</th>
+                            <td><span property="skos:example">
+                                Some area property having a state with metadata:
+                                <br>
+                                <code>
+                                    &lt;window_prop_area&gt; <a href="#hasState">opm:hasState</a> &lt;window_prop_area1&gt; .
+                                    <br>
+                                    &lt;window_prop_area1&gt; a <a href="#CurrentState">opm:CurrentState</a> ;
+                                    <br>
+                                    &emsp;&emsp;<a href="http://schema.org/value">schema:value</a>  "20 m2"^^<a href="http://w3id.org/lindt/custom_datatypes#area">cdt:area</a> ;
+                                    <br>
+                                    &emsp;&emsp;<a href="https://www.w3.org/TR/2013/REC-prov-o-20130430/#generatedAtTime">prov:generatedAtTime</a>  "2018-02-03T13:35:23Z"^^<a href="http://www.w3.org/2001/XMLSchema#dateTime">xsd:dateTime</a> .
+                                </code>
+                            </span></td>
+                        </tr>
                         <tr>
                             <th>Domain</th>
                             <td><span rel="rdfs:domain" resource="opm:Property"><a href="#Property">opm:Property</a></span></td>
@@ -303,6 +331,32 @@
         <h3>Reliability</h3>
         <section class="informative" id="Reliability-overview">
             <h4>Overview and examples</h4>
+
+            <p>In project design it is common that properties change over time. By clearly flagging the reliability of a certain property state
+                the other project participants can interpret the property accordingly when taking design decisions that depend upon it.
+                <br>
+                The figure below illustrates an assumed property state. An assumed property state is likely subject to changes.
+            </p>
+
+            <figure>
+                <a href="assets/assumed.svg"><img alt="Assumed" src="assets/assumed.svg"></a>
+                <figcaption>An opm:Assumed state is a state with lowest reliability. It will most likely change before the final design.</figcaption>
+            </figure>
+
+            <p>At some point, distinct properties must be locked in oreder to progress with the design. The design team could for example decide
+                that the super structure of a building cannot be changed after a certain data because numerous other design disciplines depend
+                upon its geometry. 
+                <br>
+                The figure below illustrates a confirmed property state. The state directly refers to documentation of the confirmation, and it
+                is attributed to a <a href="https://www.w3.org/TR/2013/REC-prov-o-20130430/#Agent">prov:Agent</a>. A confirmed property should
+                not change! Changing a confirmed property is possible, but it will likely come at a price. OPM provides the means to document that
+                a property was changed after it was confirmed by some authority. This is a valuable tool in rapidly changing design projects.
+            </p>
+
+            <figure>
+                <a href="assets/confirmed.svg"><img alt="Confirmed" src="assets/confirmed.svg"></a>
+                <figcaption>An opm:Confirmed state is a state with highest reliability. It should not be changed.</figcaption>
+            </figure>
 
         </section>
 
@@ -408,7 +462,7 @@
             </p>
 
             <figure>
-                <a href="assets/calc.svg"><img alt="Interfaces" src="assets/calc.svg"></a>
+                <a href="assets/calc.svg"><img alt="Calculation" src="assets/calc.svg"></a>
                 <figcaption>Defining a calculation.</figcaption>
             </figure>
 
@@ -434,12 +488,12 @@
             </p>
 
             <figure>
-                <a href="assets/calc_foirestriction.svg"><img alt="Interfaces" src="assets/calc_foirestriction.svg"></a>
+                <a href="assets/calc_foirestriction.svg"><img alt="FoI restriction" src="assets/calc_foirestriction.svg"></a>
                 <figcaption>Restricting a calculation to only be applied to a specific FoI.</figcaption>
             </figure>
 
             <figure>
-                <a href="assets/calc_pathrestriction.svg"><img alt="Interfaces" src="assets/calc_pathrestriction.svg"></a>
+                <a href="assets/calc_pathrestriction.svg"><img alt="Path restriction" src="assets/calc_pathrestriction.svg"></a>
                 <figcaption>Restricting a calculation to only be applied to FoIs where a certain path is fulfilled.</figcaption>
             </figure>
 
@@ -616,42 +670,85 @@
     <section class="appendix" id="examples">
         <h2>Complete Examples</h2>
         <section id="two-storey-building">
-            <h3>Two storey building</h3>
+            <h3>Assigning a new OPM property</h3>
 
-            <p>A SPARQL-visualizer example is <a href="https://w3c-lbd-cg.github.io/bot/?tab=0">available here</a>. </p>
+            <p>
+                The <a href="https://github.com/MadsHolten/opm-qg">OPM query generator</a> is a JavaScript library with methods
+                to construct SPARQL queries for operations on an OPM compliant RDF graph.
+                <br>
+
+            </p>
+
             <pre class="example">
-                @prefix bot: &lt;https://w3id.org/bot#&gt; .
+                const { OPMProp } = require('opm-qg');
 
-                # A simple two storey building with two spaces at each floor.
+                var host = "http://example.org/opmTest/";
 
-                &lt;SiteA&gt; a bot:Site ;
-                    bot:hasBuilding &lt;BuildingA&gt; .
+                var prefixes = [
+                    {prefix: 'cdt', uri: 'http://w3id.org/lindt/custom_datatypes#'},
+                    {prefix: 'props', uri: 'https://w3id.org/product/props/'}
+                ];
+
+                let opmProp = new OPMProp(host, prefixes);
+
+                const q = opmProp.postByFoI('&lt;someFoi&gt;', 'props:area', '"20 m2"^^cdt:area');
+
+                console.log(q);
+            </pre>
+
+            <p>Above will return the query:</p>
+
+            <pre class="example">
+                PREFIX  props: &lt;https://w3id.org/product/props/&gt;
+                PREFIX  opm:   &lt;https://w3id.org/opm#&gt;
+                PREFIX  prov:  &lt;http://www.w3.org/ns/prov#&gt;
+                PREFIX  cdt:   &lt;http://w3id.org/lindt/custom_datatypes#&gt;
                 
-                # Since the range of bot:hasBuilding is bot:Building it is 
-                # automatically inferred that &lt;BuildingA&gt; is a bot:Building.
+                INSERT {
+                    ?foi props:area ?propertyURI .
+                    ?propertyURI a opm:Property ;
+                        opm:hasState ?stateURI .
+                    ?stateURI a opm:CurrentState ;
+                        schema:value ?val ;
+                        prov:generatedAtTime ?now .
+                }
+                WHERE {
+                    BIND(&lt;someFoi&gt; AS ?foi)
+                    BIND("20 m2"^^cdt:area AS ?val)
+            
+                    # FoI MUST EXIST
+                    ?foi ?p ?o .
+            
+                    # THE FoI CANNOT HAVE THE PROPERTY ASSIGNED ALREADY
+                    MINUS { ?foi props:area ?prop . }
+            
+                    # CREATE STATE AND PROPERTY URIs
+                    BIND(URI(CONCAT("https://example.org/opmTest/", "state_", STRUUID())) AS ?stateURI)
+                    BIND(URI(CONCAT("https://example.org/opmTest/", "property_", STRUUID())) AS ?propertyURI)
+                    BIND(now() AS ?now)
+                }
+            </pre>
 
-                &lt;BuildingA&gt; bot:hasStorey &lt;Storey00&gt; , &lt;Storey01&gt; .
+            <p>Provided that &lt;someFoi&gt; exists and that it doesn't have a props:area assigned already, triples in the following
+                form will be generated:
+            </p>
+
+            <pre class="example">
+                @prefix cdt:   &lt;http://w3id.org/lindt/custom_datatypes#&gt; .
+                @prefix ex:    &lt;https://example.org/opmTest/&gt; .
+                @prefix opm:   &lt;https://w3id.org/opm#&gt; .
+                @prefix prov:  &lt;http://www.w3.org/ns/prov#&gt; .
+                @prefix props: &lt;https://w3id.org/product/props/&gt; .
+                @prefix xsd:   &lt;http://www.w3.org/2001/XMLSchema#&gt; .
                 
-                # Since the range of bot:hasStorey is bot:Storey it is automatically 
-                # inferred that &lt;Storey00&gt; and &lt;Storey01&gt; are instances of bot:Storey.
+                &lt;someFoi&gt; props:area ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a .
                 
-                &lt;Storey00&gt; bot:hasSpace &lt;SpaceA&gt; , &lt;SpaceB&gt; .
+                ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a a opm:Property ;
+                    opm:hasState ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa .
                 
-                &lt;Storey01&gt; bot:hasSpace &lt;SpaceC&gt; , &lt;SpaceD&gt; .
-
-                # Since the range of bot:hasSpace is bot:Space it is automatically inferred
-                # that &lt;SpaceA&gt;, &lt;SpaceB&gt;, &lt;SpaceC&gt; and &lt;SpaceD&gt; are instances of bot:Space.
-
-                # Since bot:Site, bot:Building, bot:Storey and bot:Building are all sub classes of
-                # bot:Zone, &lt;SiteA&gt;, &lt;BuildingA&gt;, &lt;Storey00&gt; , &lt;Storey01&gt;, &lt;SpaceA&gt;, &lt;SpaceB&gt;,
-                # &lt;SpaceC&gt; and &lt;SpaceD&gt; are all instances of bot:Zone
-
-                # Since bot:hasBuilding, bot:hasStorey and bot:hasSpace are all sub properties of 
-                # bot:containsZone the following can also be deduced:
-                # 
-                # &lt;SiteA&gt; bot:containsZone &lt;BuildingA&gt; .
-                # &lt;BuildingA&gt; bot:containsZone &lt;Storey00&gt; , &lt;Storey01&gt; .
-
+                ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa a opm:Assumed , opm:CurrentState ;
+                    schema:value "20 m2"^^cdt:area ;
+                    prov:generatedAtTime "2018-05-28T16:41:17.711+02:00"^^xsd#dateTime .' }
             </pre>
 
         </section>
