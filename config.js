@@ -1,11 +1,11 @@
 var respecConfig = {
     specStatus: "CG-DRAFT",
-    shortName: "vocab-bot",
+    shortName: "vocab-opm",
     //publishDate:  "2015-05-18",
     //previousPublishDate: "2014-03-27",
     //previousMaturity: "FPWD",
     //previousURI: "http://www.w3.org/TR/2014/WD-tabular-data-model-20140327/",
-    edDraftURI: "https://w3c-lbd-cg.github.io/lbd/bot/",
+    edDraftURI: "https://w3c-lbd-cg.github.io/opm/",
     // lcEnd: "3000-01-01",
     // crEnd: "3000-01-01",
     editors: [
@@ -16,26 +16,24 @@ var respecConfig = {
         companyURL: "http://www.niras.com/"
     },
     {
-        name: "Pieter Pauwels",
-        company: "Ghent University",
-        url: "https://www.ugent.be/ea/architectuur/en/contact/staff-members/pieter-pauwels",
-        companyURL: "https://www.ugent.be/en"
+        name: "Maxime Lefrançois",
+        company: "École Nationale Supérieure des Mines de Saint-Étienne",
+        url: "maxime-lefrancois.info",
+        companyURL: "https://www.mines-stetienne.fr/"
     }],
 	otherLinks: [
       {
       key: "Contributors (ordered alphabetically)",
       data: [
       {
-        value: "Maxime Lefrançois, École Nationale Supérieure des Mines de Saint-Étienne"
-      },{
-        value: "Georg Ferdinand Schneider, Fraunhofer Institute for Building Physics, Technische Hochschule Nürnberg"
+        value: "Mathias Bonduel, KU Leuven"
       }]
       },
       ],
-    wg: "Spatial Data on the Web Working Group",
+    wg: "Linked Building Data Community Group",
     wgURI: "https://www.w3.org/community/lbd/",
     wgPublicList: "",
-    implementationReportURI: "https://w3c-lbd-cg.github.io/lbd/bot/",
+    implementationReportURI: "https://w3c-lbd-cg.github.io/opm/",
     inlineCSS: true,
     noIDLIn: true,
     noLegacyStyle: false,

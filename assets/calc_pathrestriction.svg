@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="721px" height="262px" viewBox="0 0 721 262" enable-background="new 0 0 721 262" xml:space="preserve">
+<rect x="34.666" y="19.381" opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.1741" stroke-miterlimit="10" width="127.334" height="21.85"/>
+<rect x="271.248" y="213.288" opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.2142" stroke-miterlimit="10" width="192.589" height="21.851"/>
+<path opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.1812" stroke-miterlimit="10" d="M365.217,108.5
+	c0,6.379-5.188,11.563-11.575,11.563h-77.854c-6.391,0-11.572-5.184-11.572-11.563V88.789c0-6.391,5.182-11.563,11.572-11.563
+	h77.854c6.387,0,11.575,5.172,11.575,11.563V108.5z"/>
+<path opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.1008" stroke-miterlimit="10" d="M61.977,214.652
+	c0,3.551-2.887,6.435-6.441,6.435H12.214c-3.556,0-6.439-2.884-6.439-6.435v-10.967c0-3.558,2.883-6.436,6.439-6.436h43.321
+	c3.554,0,6.441,2.878,6.441,6.436L61.977,214.652L61.977,214.652z"/>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 281.3477 108.3291)" font-family="'GeosansLight'" font-size="30.2001">&lt;calc&gt;</text>
+</g>
+<path opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.1812" stroke-miterlimit="10" d="M632.658,108.5
+	c0,6.379-5.188,11.563-11.574,11.563H498.041c-6.391,0-11.574-5.184-11.574-11.563V88.789c0-6.391,5.186-11.563,11.574-11.563
+	h123.043c6.387,0,11.574,5.172,11.574,11.563V108.5L632.658,108.5z"/>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 496.9258 108.3291)" font-family="'GeosansLight'" font-size="30.2001">props:area</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 97.8149 71.7139)" font-family="'GeosansLight'" font-size="18.1203">opm:expression</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 268.8467 193.0752)" font-family="'GeosansLight'" font-size="18.1203">rdf:first</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 133.8677 213.5723)" font-family="'GeosansLight'" font-size="18.1203">rdf:first</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 60.5791 236.082)" font-family="'GeosansLight'" font-size="18.1203">rdf:rest</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 14.9229 215.2666)" font-family="'GeosansLight'" font-size="18.1203">rdf:nil</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 212.0425 228.0977)" font-family="'GeosansLight'" font-size="18.1203">rdf:rest</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 259.0361 71.7139)" font-family="'GeosansLight'" font-size="18.1203">rdf:type</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 562.5723 71.7139)" font-family="'GeosansLight'" font-size="18.1203">rdf:type</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 271.2476 159.8135)" font-family="'GeosansLight'" font-size="18.1203">prov:generatedAtTime</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 252.9873 30.3057)" font-family="'GeosansLight'" font-size="20">opm:Calculation</text>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M266.938,81.334
+			c-86.369-39.228-133.126-10.423-158.319-33.539"/>
+		<g>
+			<polygon points="112.37,47.261 109.375,48.441 108.146,51.416 105.333,44.332 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M362.322,81.334
+			c52.412-29.183,104.82-9.084,119.867-2.121"/>
+		<g>
+			<polygon points="478.853,80.984 481.265,78.853 481.403,75.637 486.467,81.334 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 350.5537 60.751)" font-family="'GeosansLight'" font-size="18.1203">opm:inferredProperty</text>
+</g>
+<g>
+	<text transform="matrix(1 0 0 1 482.1895 149.4883)" font-family="'GeosansLight'" font-size="18.1203">opm:pathRestriction</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 101.4058 129.9883)" font-family="'GeosansLight'" font-size="18.1203">opm:argumentPaths</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 35.5933 36.25)" font-family="'GeosansLight'" font-size="20">“?width</text>
+	<text transform="matrix(1 0 0 1 92.5923 41.25)" font-family="'GeosansLight'" font-size="20">*</text>
+	<text transform="matrix(1 0 0 1 98.3721 36.25)" font-family="'GeosansLight'" font-size="20">?height”</text>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 272.4956 229.8408)" font-family="'GeosansLight'" font-size="20">“?foi props:width ?width”</text>
+</g>
+<rect x="538.852" y="169.748" fill="#EDEDED" stroke="#000000" stroke-width="0.1996" stroke-miterlimit="10" width="167.271" height="21.851"/>
+<g>
+	<text transform="matrix(1 0 0 1 540.0996 186.3008)" font-family="'GeosansLight'" font-size="20">“?foi a prod:Window”</text>
+</g>
+<g opacity="0.6">
+	<g>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" x1="314.716" y1="77.225" x2="314.716" y2="75.225"/>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" stroke-dasharray="3.5776,3.5776" x1="314.716" y1="71.647" x2="314.716" y2="44.814"/>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" x1="314.716" y1="43.026" x2="314.716" y2="41.026"/>
+		<g>
+			<polygon points="317.678,43.272 314.716,42.014 311.753,43.272 314.716,36.25 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 508.334 30.3057)" font-family="'GeosansLight'" font-size="20">opm:Property</text>
+</g>
+<g opacity="0.6">
+	<g>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" x1="559.563" y1="77.225" x2="559.563" y2="75.225"/>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" stroke-dasharray="3.5776,3.5776" x1="559.563" y1="71.647" x2="559.563" y2="44.814"/>
+		
+			<line fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" x1="559.563" y1="43.026" x2="559.563" y2="41.026"/>
+		<g>
+			<polygon points="562.525,43.272 559.563,42.014 556.6,43.272 559.563,36.25 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M362.322,116.126
+			c36.14,30.808,115.626,43.688,141.613,87.375"/>
+		<g>
+			<polygon points="500.158,203.41 503.311,202.766 505.035,200.046 506.584,207.51 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M264.216,98.645
+			c-25.659,0-30.633,33.146-30.633,79.804"/>
+		<g>
+			<polygon points="230.643,177.137 233.583,178.448 236.567,177.241 233.481,184.21 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M187.438,229.598
+			c30.416-3.13,44.511-35.428,44.511-35.428"/>
+		<g>
+			<polygon points="189.856,232.364 188.417,229.484 189.491,226.451 182.664,229.841 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M286.772,205.998
+			c-5.727-5.641-20.104-15.871-49.054-15.871"/>
+		<g>
+			<polygon points="287.452,202.398 286.063,205.303 283.009,206.318 289.877,209.625 			"/>
+		</g>
+	</g>
+</g>
+<circle opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.0242" stroke-miterlimit="10" cx="233.414" cy="190.126" r="4.306"/>
+<circle opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.0242" stroke-miterlimit="10" cx="176.326" cy="229.841" r="4.305"/>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M172.708,227.514
+			c-16.811-11.236-60.47-6.955-65.066-33.445"/>
+		<g>
+			<polygon points="110.876,196.009 107.806,195.042 104.979,196.581 107.25,189.305 			"/>
+		</g>
+	</g>
+</g>
+<g opacity="0.6">
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M172.323,231.416
+			c-45.79,14.245-74.062-18.576-103.477-21.966"/>
+		<g>
+			<polygon points="71.293,206.698 69.833,209.566 70.884,212.609 64.083,209.169 			"/>
+		</g>
+	</g>
+</g>
+<rect x="4.36" y="166.212" opacity="0.6" fill="#EDEDED" stroke="#000000" stroke-width="0.2201" stroke-miterlimit="10" width="203.2" height="21.851"/>
+<g opacity="0.6">
+	<text transform="matrix(1 0 0 1 5.2549 182.7793)" font-family="'GeosansLight'" font-size="20">“?foi props:height ?height”</text>
+</g>
+<rect x="468.985" y="213.288" opacity="0.6" fill="#ECECEC" stroke="#1D1D1B" stroke-width="0.2108" stroke-miterlimit="10" width="186.547" height="21.851"/>
+<text transform="matrix(1 0 0 1 469.9854 231.0488)" opacity="0.6" fill="#1D1D1B" enable-background="new    " font-family="'GeosansLight'" font-size="18.1203">“2018-03-27T11:00:00Z”</text>
+<text transform="matrix(1 0 0 1 656.1592 222.4092)" opacity="0.6" fill="#1D1D1B" enable-background="new    " font-family="'GeosansLight'" font-size="10.5641">^^xsd:dateTime</text>
+<g>
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="0.4" stroke-miterlimit="10" d="M365.217,98.645
+			c66.706,0,120.268,76.423,164.679,81.738"/>
+		<g>
+			<polygon points="527.429,183.083 528.913,180.227 527.889,177.176 534.66,180.674 			"/>
+		</g>
+	</g>
+</g>
+</svg>

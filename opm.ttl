@@ -86,6 +86,7 @@ Beregnede egenskaber lagres også som tilstande da disse ændres når en beregni
 
 opm:CurrentState
         a owl:Class ;
+        rdfs:subClassOf opm:State ;
         rdfs:label      "Current State"@en ,
                         "Aktuel tilstand"@da ;
         rdfs:comment    "The property state that was most recently defined is an instance of opm:CurrentState."@en ,
@@ -93,6 +94,7 @@ opm:CurrentState
 
 opm:OutdatedState
         a owl:Class ;
+        rdfs:subClassOf opm:State ;
         rdfs:label      "Outdated State"@en ,
                         "Forældet tilstand"@da ;
         rdfs:comment    "Any property state that has been substituted with a new one is an instance of opm:OutdatedState."@en ,
@@ -190,6 +192,15 @@ opm:inferredProperty
         rdfs:domain     opm:Calculation ;
         rdfs:range      opm:Property .
 
+opm:foiRestriction
+        a owl:ObjectProperty ;
+        rdfs:label      "feature of interest restriction"@en ,
+                        "feature af interesse restriktion"@da ;
+        rdfs:comment    "If a calculation is only to be applied to one specific feature of interest (FoI), this restriction can be used."@en ,
+                        "Hvis en beregning kun skal tilknyttes én specifik feature af interesse (FoI) kan denne restriktion benyttes."@da ;
+        rdfs:domain     opm:Calculation ;
+        rdfs:range      seas:FeatureOfInterest .
+
 #################################
 # DATATYPE PROPERTIES
 #################################
@@ -220,6 +231,15 @@ opm:unit
                         "NB! Forældet: brug et hvert foretrukket enhedssystem (QUDT, OM, schema, CDT UCUM etc.). Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
         rdfs:domain     opm:Calculation .
 
+opm:pathRestriction
+        a owl:DatatypeProperty ;
+        rdfs:label      "path restriction"@en ,
+                        "sti-begrænsning"@da ;
+        rdfs:comment    "If a calculation is only to be applied to features of interest (FoIs) that have a certain relationship applied, this restriction can be used."@en ,
+                        "Hvis en beregning kun skal tilknyttes features af interesse (FoIs) som har en bestemt relation tilknyttet, kan denne restriktion benyttes"@da ;
+        rdfs:domain     opm:Calculation ;
+        rdfs:range      xsd:string .
+
 #################################
 # CONSTRAINTS
 #################################
@@ -227,10 +247,17 @@ opm:unit
 [] a owl:AllDisjointClasses ;
         owl:members
               ( opm:Property
-                opm:State ) .
+                opm:State
+                opm:Calculation ) .
 
 # Disjunctive classes
 [] a owl:AllDisjointClasses ;
         owl:members
               ( opm:Assumption
                 opm:Confirmed ) .
+
+# Disjunctive classes
+[] a owl:AllDisjointClasses ;
+        owl:members
+              ( opm:CurrentState
+                opm:OutdatedState ) .
