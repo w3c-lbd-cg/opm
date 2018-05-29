@@ -65,17 +65,16 @@ foaf:name a owl:DatatypeProperty .
 # CLASSES
 #################################
 
-# Consider using seas:Property instead
 opm:Property
         a owl:Class ;
-        rdfs:label      "Property"@en ,
-                        "Egenskab"@da ;
-        owl:equivalentClass   seas:Property .
+        rdfs:label              "Property"@en ,
+                                "Egenskab"@da ;
+        owl:equivalentClass     seas:Property .
 
-opm:State
+opm:PropertyState
         a owl:Class ;
-        rdfs:label      "State"@en ,
-                        "Stade"@da ;
+        rdfs:label      "Property State"@en ,
+                        "Egenskabstilstand"@da ;
         rdfs:comment    """A state is an evaluation holding the value + metadata about a property that was true for the given time.
 Metadata must as a minimum be the time of generation stated by prov:generatedAtTime, but preferably also a prov:wasAttributedTo reference to the agent who created the state.
 Calculated properties are also stored as states as these change when an expression argument changes. Calculations must have an opm:expression and a prov:wasDerivedFrom assigned to them. prov:wasDerivedFrom is stored as a rdf:Seq pointing to the property states that were used for the calculation."""@en ,
@@ -84,19 +83,19 @@ Metadata skal som minimum bestå af oprettelsestidspunktet givet ved prov:genera
 Beregnede egenskaber lagres også som tilstande da disse ændres når en beregningsparameter ændres. Beregninger skal have en opm:expression og en prov:wasDerivedFrom tilknyttet. prov:wasDerivedFrom lagres som en rdf:Seq, som peger på egenskabstilstandene som blev brugt til beregningen."""@da ; 
         rdfs:subClassOf seas:Evaluation .
 
-opm:CurrentState
+opm:CurrentPropertyState
         a owl:Class ;
-        rdfs:subClassOf opm:State ;
-        rdfs:label      "Current State"@en ,
-                        "Aktuel tilstand"@da ;
-        rdfs:comment    "The property state that was most recently defined is an instance of opm:CurrentState."@en ,
-                        "Egenskabsstadet som senest blev defineret klassificeres som opm:CurrentState."@da .
+        rdfs:subClassOf opm:PropertyState ;
+        rdfs:label      "Current Property State"@en ,
+                        "Aktuel Egenskabstilstand"@da ;
+        rdfs:comment    "The property state that was most recently defined is an instance of opm:CurrentPropertyState."@en ,
+                        "Egenskabsstadet som senest blev defineret klassificeres som opm:CurrentPropertyState."@da .
 
-opm:OutdatedState
+opm:OutdatedPropertyState
         a owl:Class ;
-        rdfs:subClassOf opm:State ;
-        rdfs:label      "Outdated State"@en ,
-                        "Forældet tilstand"@da ;
+        rdfs:subClassOf opm:PropertyState ;
+        rdfs:label      "Outdated Property State"@en ,
+                        "Forældet egenskabstilstand"@da ;
         rdfs:comment    "Any property state that has been substituted with a new one is an instance of opm:OutdatedState."@en ,
                         "Enhver egenskabstilstand som er blevet erstattet af en ny klassificeres som opm:OutdatedState."@da .
 
@@ -134,35 +133,16 @@ opm:Calculation
 # OBJECT PROPERTIES
 #################################
 
-# Consider using seas:hasProperty instead
-opm:hasProperty
-        a owl:ObjectProperty ;
-        rdfs:subPropertyOf      seas:hasProperty ;
-        rdfs:label              "has property"@en ,
-                                "har egenskab"@da ;
-        rdfs:comment            "Relationship between a feature of interest and a property it has assigned."@en ,
-                                "Relation mellem en feature af interesse og en egenskab denne har tilknyttet."@da ;
-        rdfs:range              opm:Property .
-
-# To be considered
-opm:hasPropertyRequirement
-        a owl:ObjectProperty ;
-        rdfs:label              "has property requirement"@en ,
-                                "har egenskabskrav"@da ;
-        rdfs:comment            "Relationship between a feature of interest and a property requirement it has assigned."@en ,
-                                "Relation mellem en feature af interesse og et egenskabskrav denne har tilknyttet."@da ;
-        rdfs:range              opm:Property .
-
 # Consider using seas:evaluation instead
-opm:hasState
+opm:hasPropertyState
         a owl:ObjectProperty ;
         rdfs:subPropertyOf      seas:evaluation ;
-        rdfs:label              "has state"@en ,
-                                "har tilstand"@da ;
+        rdfs:label              "has property state"@en ,
+                                "har egenskabstilstand"@da ;
         rdfs:comment            "Relationship between a property and one of its states."@en ,
                                 "Relation mellem en egenskab og en af dennes tilstande."@da ;
         rdfs:domain             opm:Property ;
-        rdfs:range              opm:State .
+        rdfs:range              opm:PropertyState .
 
 # To be considered
 opm:documentation
@@ -171,7 +151,7 @@ opm:documentation
                         "dokumentation"@da ;
         rdfs:comment    "Relationship between a confirmed state and a file holding some documentation. This could be either a mail, a scanned document or a digital signature."@en ,
                         "Relation mellem en bekræftet tilstand og en fil, som indeholder dokumentation. Dette kunne være enten en mail, en skannet dokument eller en digital signatur."@da ;
-        rdfs:domain     opm:State .
+        rdfs:domain     opm:PropertyState .
 
 opm:argumentPaths
         a owl:ObjectProperty ;
@@ -205,30 +185,12 @@ opm:foiRestriction
 # DATATYPE PROPERTIES
 #################################
 
-# DEPRECATED!
-opm:valueAtState
-        a rdf:Property ;
-        rdfs:label      "value at state"@en ,
-                        "værdi ved tilstand"@da ;
-        rdfs:comment    "NB! Deprecated: use schema:value instead. Points to a literal with the value of the property at the given state."@en ,
-                        "NB! Forældet: brug schema:value i stedet. Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
-        rdfs:domain     opm:State .
-
 opm:expression
         a owl:DatatypeProperty ;
         rdfs:label      "expression"@en ,
                         "udtryk"@da ;
         rdfs:comment    "Points to a literal containing the expression to execute with a calculation. Arguments of the expression are defined with vaiables (ie. ?arg1) corresponding to ones used in the argument paths."@en ,
                         "Peger på en tekststreng, som indeholder det (matematiske) udtryk, som skal eksekveres med en beregning. Argumenter i udtrykket er givet ved variabler (fx ?arg1), som svarer til dem der benyttes i argument-stierne."@da ;
-        rdfs:domain     opm:Calculation .
-
-# DEPRECATED!
-opm:unit
-        a owl:DatatypeProperty ;
-        rdfs:label      "unit"@en ,
-                        "enhed"@da ;
-        rdfs:comment    "NB! Deprecated: use any preferred unit system (QUDT, OM, schema, CDT UCUM etc.). Points to a literal containing the unit of the inferred property. The unit is applied as a concatenation with the calculation result. If the result is 40 and the unit is '°C'^^cdt:temperature the result will be inferred as '40 °C'^^cdt:temperature."@en ,
-                        "NB! Forældet: brug et hvert foretrukket enhedssystem (QUDT, OM, schema, CDT UCUM etc.). Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
         rdfs:domain     opm:Calculation .
 
 opm:pathRestriction
@@ -247,7 +209,7 @@ opm:pathRestriction
 [] a owl:AllDisjointClasses ;
         owl:members
               ( opm:Property
-                opm:State
+                opm:PropertyState
                 opm:Calculation ) .
 
 # Disjunctive classes
@@ -259,5 +221,34 @@ opm:pathRestriction
 # Disjunctive classes
 [] a owl:AllDisjointClasses ;
         owl:members
-              ( opm:CurrentState
+              ( opm:CurrentPropertyState
                 opm:OutdatedState ) .
+
+#################################
+# DEPRECATED
+#################################
+
+opm:hasProperty
+        a owl:ObjectProperty ;
+        rdfs:subPropertyOf      seas:hasProperty ;
+        rdfs:label              "has property"@en ,
+                                "har egenskab"@da ;
+        rdfs:comment            "NB! Deprecated. Relationship between a feature of interest and a property it has assigned."@en ,
+                                "NB! Forældet. Relation mellem en feature af interesse og en egenskab denne har tilknyttet."@da ;
+        rdfs:range              opm:Property .
+
+opm:valueAtState
+        a rdf:Property ;
+        rdfs:label      "value at state"@en ,
+                        "værdi ved tilstand"@da ;
+        rdfs:comment    "NB! Deprecated: use schema:value instead. Points to a literal with the value of the property at the given state."@en ,
+                        "NB! Forældet: brug schema:value i stedet. Peger på en tekststreng med værdien af egenskaben ved den givne tilstand."@da ;
+        rdfs:domain     opm:PropertyState .
+
+opm:unit
+        a owl:DatatypeProperty ;
+        rdfs:label      "unit"@en ,
+                        "enhed"@da ;
+        rdfs:comment    "NB! Deprecated: use any preferred unit system (QUDT, OM, schema, CDT UCUM etc.). Points to a literal containing the unit of the inferred property. The unit is applied as a concatenation with the calculation result. If the result is 40 and the unit is '°C'^^cdt:temperature the result will be inferred as '40 °C'^^cdt:temperature."@en ,
+                        "NB! Forældet: brug et hvert foretrukket enhedssystem (QUDT, OM, schema, CDT UCUM etc.). Peger på en tekststreng, som indeholder enheden for den udledte egenskab. Enheden tilføjes som en sammenkædning med beregningsresultatet. Hvis resultatet er 40 og enheden er '°C'^^cdt:temperature bliver resultatet udledt som '40 °C'^^cdt:temperature."@da ;
+        rdfs:domain     opm:Calculation .

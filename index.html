@@ -69,9 +69,9 @@
             <div id="index-of-classes-and-properties">
                 <div class="azlist">
                     <p>Classes:
-                        <a href="#State">opm:State</a> , 
-                        <a href="#CurrentState">opm:CurrentState</a> ,
-                        <a href="#OutdatedState">opm:OutdatedState</a> ,
+                        <a href="#PropertyState">opm:PropertyState</a> , 
+                        <a href="#CurrentPropertyState">opm:CurrentPropertyState</a> ,
+                        <a href="#OutdatedPropertyState">opm:OutdatedPropertyState</a> ,
                         <a href="#Deleted">opm:Deleted</a> ,
                         <a href="#Assumed">opm:Assumed</a> ,
                         <a href="#Confirmed">opm:Confirmed</a> ,
@@ -81,8 +81,8 @@
                 </div>
                 <div class="azlist">
                     <p>Object Properties:
-                        <a href="#hasProperty">opm:hasProperty</a> , 
-                        <a href="#hasState">opm:hasState</a> , 
+                        <!-- <a href="#hasProperty">opm:hasProperty</a> ,  -->
+                        <a href="#hasPropertyState">opm:hasPropertyState</a> , 
                         <a href="#documentation">opm:documentation</a> , 
                         <a href="#argumentPaths">opm:argumentPaths</a> , 
                         <a href="#inferredProperty">opm:inferredProperty</a> , 
@@ -99,7 +99,7 @@
         </section>
 
     <!-- States -->
-    <section id="States">
+    <section id="PropertyStates">
         <h3>Property States</h3>
         <section class="informative" id="States-overview">
             <h4>Overview and examples</h4>
@@ -111,28 +111,28 @@
 
         </section>
 
-        <section id="States-specification">
+        <section id="PropertyStates-specification">
                 <h4>Specification</h4>
               <p>This section introduces the following classes and properties:</p>
               <div class="azlist">
                 <p>
-                   <a href="#State">opm:State</a> ,
-                   <a href="#CurrentState">opm:CurrentState</a> ,
-                   <a href="#OutdatedState">opm:OutdatedState</a> ,
+                   <a href="#PropertyState">opm:PropertyState</a> ,
+                   <a href="#CurrentPropertyState">opm:CurrentPropertyState</a> ,
+                   <a href="#OutdatedPropertyState">opm:OutdatedPropertyState</a> ,
                    <a href="#Deleted">opm:Deleted</a> ,
-                   <a href="#hasProperty">opm:hasProperty</a> , 
-                   <a href="#hasState">opm:hasState</a>
+                   <!-- <a href="#hasProperty">opm:hasProperty</a> ,  -->
+                   <a href="#hasPropertyState">opm:hasPropertyState</a>
                  </p>
               </div>
 
-            <!-- State -->
-            <section class="specterm" id="State" about="opm:State" typeof="owl:Class rdfs:Class">
-                <h5><a href="#State">opm:State</a></h5>
-                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#State</p>
+            <!-- PropertyState -->
+            <section class="specterm" id="PropertyState" about="opm:PropertyState" typeof="owl:Class rdfs:Class">
+                <h5><a href="#PropertyState">opm:PropertyState</a></h5>
+                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#PropertyState</p>
                 <p><strong>a OWL Class</strong></p>
 
-                <em property="rdfs:label">State</em> -
-                <span property="rdfs:comment skos:definition">A state is an evaluation holding the value + 
+                <em property="rdfs:label">Property State</em> -
+                <span property="rdfs:comment skos:definition">A property state is an evaluation holding the value + 
                     metadata about a property that was true for the given time.
                     Metadata must as a minimum be the time of generation stated by prov:generatedAtTime, 
                     but preferably also a prov:wasAttributedTo reference to the agent who created the state.
@@ -150,21 +150,21 @@
                         <tr>
                             <th class="restrictions">Disjoint with</th>
                             <td>
-                                <span about="opm:State" rel="owl:disjointWith" resource="opm:Calculation"><a href="#Calculation">opm:Calculation</a></span>
+                                <span about="opm:PropertyState" rel="owl:disjointWith" resource="opm:Calculation"><a href="#Calculation">opm:Calculation</a></span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
-            <!-- CurrentState -->
-            <section class="specterm" id="CurrentState" about="opm:CurrentState" typeof="owl:Class rdfs:Class">
-                <h5><a href="#CurrentState">opm:CurrentState</a></h5>
-                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#CurrentState</p>
+            <!-- CurrentPropertyState -->
+            <section class="specterm" id="CurrentPropertyState" about="opm:CurrentPropertyState" typeof="owl:Class rdfs:Class">
+                <h5><a href="#CurrentPropertyState">opm:CurrentPropertyState</a></h5>
+                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#CurrentPropertyState</p>
                 <p><strong>a OWL Class</strong></p>
 
-                <em property="rdfs:label">CurrentState</em> -
-                <span property="rdfs:comment skos:definition">The property state that was most recently defined is an instance of opm:CurrentState.</span>
+                <em property="rdfs:label">Current Property State</em> -
+                <span property="rdfs:comment skos:definition">The property state that was most recently defined is an instance of opm:CurrentPropertyState.</span>
                 <br>
                 <table>
                     <tbody>
@@ -175,27 +175,27 @@
                         <tr>
                             <th>Sub class of</th>
                             <td>
-                                <span rel="rdfs:subClassOf" resource="opm:State"><a href="#State">opm:State</a></span>
+                                <span rel="rdfs:subClassOf" resource="opm:PropertyState"><a href="#PropertyState">opm:PropertyState</a></span>
                             </td>
                         </tr>
                         <tr>
                             <th class="restrictions">Disjoint with</th>
                             <td>
-                                <span about="opm:CurrentState" rel="owl:disjointWith" resource="opm:OutdatedState"><a href="#OutdatedState">opm:OutdatedState</a></span>
+                                <span about="opm:CurrentPropertyState" rel="owl:disjointWith" resource="opm:OutdatedPropertyState"><a href="#OutdatedPropertyState">opm:OutdatedPropertyState</a></span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
-            <!-- OutdatedState -->
-            <section class="specterm" id="OutdatedState" about="opm:OutdatedState" typeof="owl:Class rdfs:Class">
-                <h5><a href="#OutdatedState">opm:OutdatedState</a></h5>
-                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#OutdatedState</p>
+            <!-- OutdatedPropertyState -->
+            <section class="specterm" id="OutdatedPropertyState" about="opm:OutdatedPropertyState" typeof="owl:Class rdfs:Class">
+                <h5><a href="#OutdatedPropertyState">opm:OutdatedPropertyState</a></h5>
+                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#OutdatedPropertyState</p>
                 <p><strong>a OWL Class</strong></p>
 
-                <em property="rdfs:label">OutdatedState</em> -
-                <span property="rdfs:comment skos:definition">Any property state that has been substituted with a new one is an instance of opm:OutdatedState.</span>
+                <em property="rdfs:label">Outdated Property State</em> -
+                <span property="rdfs:comment skos:definition">Any property state that has been substituted with a new one is an instance of opm:OutdatedPropertyState.</span>
                 <br>
                 <table>
                     <tbody>
@@ -206,13 +206,13 @@
                         <tr>
                             <th>Sub class of</th>
                             <td>
-                                <span rel="rdfs:subClassOf" resource="opm:State"><a href="#State">opm:State</a></span>
+                                <span rel="rdfs:subClassOf" resource="opm:PropertyState"><a href="#PropertyState">opm:PropertyState</a></span>
                             </td>
                         </tr>
                         <tr>
                             <th class="restrictions">Disjoint with</th>
                             <td>
-                                <span about="opm:OutdatedState" rel="owl:disjointWith" resource="opm:CurrentState"><a href="#CurrentState">opm:CurrentState</a></span>
+                                <span about="opm:OutdatedPropertyState" rel="owl:disjointWith" resource="opm:CurrentPropertyState"><a href="#CurrentPropertyState">opm:CurrentPropertyState</a></span>
                             </td>
                         </tr>
                     </tbody>
@@ -240,7 +240,7 @@
             </section>
 
             <!-- hasProperty -->
-            <section class="specterm" id="hasProperty" about="opm:hasProperty" typeof="owl:ObjectProperty">
+            <!-- <section class="specterm" id="hasProperty" about="opm:hasProperty" typeof="owl:ObjectProperty">
                 <h5><a href="#hasProperty">opm:hasProperty</a></h5>
                 <em>To be considered</em>
                 <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#hasProperty</p>
@@ -275,15 +275,15 @@
                         </tr>
                     </tbody>
                 </table>
-            </section>
+            </section> -->
 
-            <!-- hasState -->
-            <section class="specterm" id="hasState" about="opm:hasState" typeof="owl:ObjectProperty">
-                <h5><a href="#hasState">opm:hasState</a></h5>
-                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#hasState</p>
+            <!-- hasPropertyState -->
+            <section class="specterm" id="hasPropertyState" about="opm:hasPropertyState" typeof="owl:ObjectProperty">
+                <h5><a href="#hasPropertyState">opm:hasPropertyState</a></h5>
+                <p class="crossreference"><strong>IRI:</strong> http://www.w3id.org/opm#hasPropertyState</p>
                 <p><strong>a OWL Object Property</strong></p>
 
-                <em property="rdfs:label">hasState</em> -
+                <em property="rdfs:label">hasPropertyState</em> -
                 <span property="rdfs:comment skos:definition">Relationship between a property and one of its states.</span>
                 <br>
                 <table>
@@ -294,9 +294,9 @@
                                 Some area property having a state with metadata:
                                 <br>
                                 <code>
-                                    &lt;window_prop_area&gt; <a href="#hasState">opm:hasState</a> &lt;window_prop_area1&gt; .
+                                    &lt;window_prop_area&gt; <a href="#hasPropertyState">opm:hasPropertyState</a> &lt;window_prop_area1&gt; .
                                     <br>
-                                    &lt;window_prop_area1&gt; a <a href="#CurrentState">opm:CurrentState</a> ;
+                                    &lt;window_prop_area1&gt; a <a href="#CurrentPropertyState">opm:CurrentPropertyState</a> ;
                                     <br>
                                     &emsp;&emsp;<a href="http://schema.org/value">schema:value</a>  "20 m2"^^<a href="http://w3id.org/lindt/custom_datatypes#area">cdt:area</a> ;
                                     <br>
@@ -310,7 +310,7 @@
                         </tr>
                         <tr>
                             <th>Range</th>
-                            <td><span rel="rdfs:range" resource="opm:State"><a href="#State">opm:State</a></span></td>
+                            <td><span rel="rdfs:range" resource="opm:PropertyState"><a href="#PropertyState">opm:PropertyState</a></span></td>
                         </tr>
                         <tr>
                             <th>Sub property of</th>
@@ -437,7 +437,7 @@
                     <tbody>
                         <tr>
                             <th>Domain</th>
-                            <td><span rel="rdfs:domain" resource="opm:State"><a href="#State">opm:State</a></span></td>
+                            <td><span rel="rdfs:domain" resource="opm:PropertyState"><a href="#PropertyState">opm:PropertyState</a></span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -531,7 +531,7 @@
                         <tr>
                             <th class="restrictions">Disjoint with</th>
                             <td>
-                                <span about="opm:Calculation" rel="owl:disjointWith" resource="opm:State"><a href="#State">opm:State</a></span>
+                                <span about="opm:Calculation" rel="owl:disjointWith" resource="opm:PropertyState"><a href="#PropertyState">opm:PropertyState</a></span>
                             </td>
                         </tr>
                     </tbody>
@@ -707,8 +707,8 @@
                 INSERT {
                     ?foi props:area ?propertyURI .
                     ?propertyURI a opm:Property ;
-                        opm:hasState ?stateURI .
-                    ?stateURI a opm:CurrentState ;
+                        opm:hasPropertyState ?stateURI .
+                    ?stateURI a opm:CurrentPropertyState ;
                         schema:value ?val ;
                         prov:generatedAtTime ?now .
                 }
@@ -741,12 +741,15 @@
                 @prefix props: &lt;https://w3id.org/product/props/&gt; .
                 @prefix xsd:   &lt;http://www.w3.org/2001/XMLSchema#&gt; .
                 
-                &lt;someFoi&gt; props:area ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a .
+                &lt;someFoi&gt; 
+                    props:area ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a .
                 
-                ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a a opm:Property ;
-                    opm:hasState ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa .
+                ex:property_efafede9-53d3-425f-89f3-ed8a40b5995a 
+                    a opm:Property ;
+                    opm:hasPropertyState ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa .
                 
-                ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa a opm:Assumed , opm:CurrentState ;
+                ex:state_8e889bba-bc25-4b1a-ac34-330f776892fa 
+                    a opm:Assumed , opm:CurrentPropertyState ;
                     schema:value "20 m2"^^cdt:area ;
                     prov:generatedAtTime "2018-05-28T16:41:17.711+02:00"^^xsd#dateTime .' }
             </pre>
