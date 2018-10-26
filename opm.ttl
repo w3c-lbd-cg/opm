@@ -122,6 +122,22 @@ opm:Confirmed
         rdfs:comment    "A confirmed property is a property that has been validated by an agent who is authorized to do so. A confirmed property should not be changed."@en ,
                         "En bekræftet egenskab er en egenskab, der er blevet valideret af en agent, som har autoritet dertil. En bekræftet egenskab bør ikke ændres."@da .
 
+opm:Derived
+        a owl:Class ;
+        rdfs:label      "Derived"@en ,
+                        "Afledt"@da ;
+        rdfs:comment    """A derived property is a property that has been deduced from one or more other properties. Specifying a relationship to these should be done using the prov:wasDerivedFrom predicate."""@en ,
+                        """En afledt egenskab er en egenskab der er udledt fra en eller flere andre egenskaber. Specifikation af relationer til disse bør gøres ved at bruge prædikatet prov:wasDerivedFrom."""@da .
+
+opm:Required
+        a owl:Class ;
+        rdfs:label      "Required"@en ,
+                        "Krævet"@da ;
+        rdfs:comment    """A required property can be assigned to abstract models such as an abstract product model that holds the prerequisites for a future building. The requirements can be compared to properties of actual products available on the market."""@en ,
+                        """Et egenskabskrav kan knyttes til abstrakte modeller så som en abstrakt produktmodel, som indeholder forudsætningerne for et fremtidigt byggeri. Kravene kan sammenlignes med egenskaber for reelle produkter, der er tilgængelige på markedet."""@da .
+
+# CALCULATIONS
+
 opm:Calculation
         a owl:ObjectProperty ;
         rdfs:label      "Calculation"@en ,
