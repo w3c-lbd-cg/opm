@@ -109,7 +109,7 @@ opm:Deleted
 # PROPERTY RELIABILITY
 
 opm:Assumed
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "Assumed"@en ,
                         "Antaget"@da ;
         rdfs:comment    "An assumption is an unconfirmed property. Assumptions enable designers to move on with the design knowing that the assumed property might change as the project progresses."@en ,
@@ -139,7 +139,7 @@ opm:Required
 # CALCULATIONS
 
 opm:Calculation
-        a owl:ObjectProperty ;
+        a owl:Class ;
         rdfs:label      "Calculation"@en ,
                         "Beregning"@da ;
         rdfs:comment    """A calculation holds the necessary information to infer derived properties."""@en ,
